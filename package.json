@@ -1,0 +1,49 @@
+{
+  "name": "ndx-server",
+  "version": "0.0.1",
+  "description": "my server framework",
+  "main": "build/index.js",
+  "scripts": {
+    "test": "grunt test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ndxbxrme/ndx-server.git"
+  },
+  "author": "ndxbxrme",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ndxbxrme/ndx-server/issues"
+  },
+  "homepage": "https://github.com/ndxbxrme/ndx-server",
+  "devDependencies": {
+    "grunt": "^1.0.1",
+    "grunt-cli": "^1.2.0",
+    "grunt-contrib-clean": "^1.0.0",
+    "grunt-contrib-coffee": "^1.0.0",
+    "grunt-contrib-watch": "^1.0.0",
+    "load-grunt-tasks": "^3.5.2"
+  },
+  "dependencies": {
+    "async": "^2.1.4",
+    "bcrypt-nodejs": "0.0.3",
+    "body-parser": "^1.15.2",
+    "bson-objectid": "^1.1.4",
+    "compression": "^1.6.2",
+    "connect-flash": "^0.1.1",
+    "cookie-parser": "^1.4.3",
+    "crypto-js": "^3.1.9-1",
+    "express": "^4.14.0",
+    "express-session": "^1.14.2",
+    "gzippo": "^0.2.0",
+    "ip": "^1.1.4",
+    "memory-tick": "^1.0.1",
+    "ndxdb": "^1.0.9",
+    "passport": "^0.3.2",
+    "passport-facebook": "^2.1.1",
+    "passport-github": "^1.1.0",
+    "passport-local": "^1.0.0",
+    "passport-twitter": "^1.0.4",
+    "socket.io": "^1.7.2"
+  }
+}
