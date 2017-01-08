@@ -49,7 +49,7 @@ module.exports =
     require('./passport.js') app, database, config
     require('./keep-awake.js') app, config.host
     for ctrl in controllers
-      ctrl app, database
+      ctrl app, database, socket
     
     require('./static_routes.js') app
 

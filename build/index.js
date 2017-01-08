@@ -61,7 +61,7 @@
       require('./keep-awake.js')(app, config.host);
       for (i = 0, len = controllers.length; i < len; i++) {
         ctrl = controllers[i];
-        ctrl(app, database);
+        ctrl(app, database, socket);
       }
       require('./static_routes.js')(app);
       server = http.createServer(app);
