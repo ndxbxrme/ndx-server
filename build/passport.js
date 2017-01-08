@@ -71,7 +71,7 @@
           if (bits.length === 2) {
             d = new Date(bits[1]);
             if (d.toString() !== 'Invalid Date') {
-              users = database.exec('SELECT * FROM users WHERE _id=?', [bits[0]]);
+              users = database.exec('SELECT * FROM ' + settings.USER_TABLE + ' WHERE _id=?', [bits[0]]);
               if (users && users.length) {
                 req.user = users[0];
                 setCookie(req, res);
@@ -99,7 +99,7 @@
       passReqToCallback: true
     }, function(req, email, password, done) {
       var newUser, users;
-      users = database.exec('SELECT * FROM users WHERE local->email=?', [email]);
+      users = database.exec('SELECT * FROM ' + settings.USER_TABLE + ' WHERE local->email=?', [email]);
       if (users && users.length) {
         return done(null, false, req.flash('signupMessage', 'That email is already taken.'));
       } else {
@@ -110,7 +110,7 @@
             password: generateHash(password)
           }
         };
-        database.exec('INSERT INTO users VALUES ?', [newUser]);
+        database.exec('INSERT INTO ' + settings.USER_TABLE + ' VALUES ?', [newUser]);
         return done(null, newUser);
       }
     }));
@@ -120,7 +120,7 @@
       passReqToCallback: true
     }, function(req, email, password, done) {
       var users;
-      users = database.exec('SELECT * FROM users WHERE local->email=?', [email]);
+      users = database.exec('SELECT * FROM ' + settings.USER_TABLE + ' WHERE local->email=?', [email]);
       if (users && users.length) {
         if (!validPassword(password, users[0].local.password)) {
           return done(null, false, req.flash('loginMessage', 'Wrong password'));
@@ -155,10 +155,10 @@
         return process.nextTick(function() {
           var newUser, users;
           if (!req.user) {
-            users = database.exec('SELECT * FROM users WHERE twitter->id=?', [profile.id]);
+            users = database.exec('SELECT * FROM ' + settings.USER_TABLE + ' WHERE twitter->id=?', [profile.id]);
             if (users && users.length) {
               if (!users[0].twitter.token) {
-                database.exec('UPDATE users SET twitter=? WHERE _id=?', [
+                database.exec('UPDATE ' + settings.USER_TABLE + ' SET twitter=? WHERE _id=?', [
                   {
                     id: profile.id,
                     token: token,
@@ -179,11 +179,11 @@
                   displayName: profile.displayName
                 }
               };
-              database.exec('INSERT INTO users VALUES ?', [newUser]);
+              database.exec('INSERT INTO ' + settings.USER_TABLE + ' VALUES ?', [newUser]);
               return done(null, newUser);
             }
           } else {
-            database.exec('UPDATE users SET twitter=? WHERE _id=?', [
+            database.exec('UPDATE ' + settings.USER_TABLE + ' SET twitter=? WHERE _id=?', [
               {
                 id: profile.id,
                 token: token,
@@ -220,10 +220,10 @@
       }, function(req, token, refreshToken, profile, done) {
         var newUser, users;
         if (!req(user)) {
-          users = database.exec('SELECT * FROM users WHERE facebook->id=?', [profile.id]);
+          users = database.exec('SELECT * FROM ' + settings.USER_TABLE + ' WHERE facebook->id=?', [profile.id]);
           if (users && users.length) {
             if (!users[0].facebook.token) {
-              database.exec('UPDATE users SET facebook=? WHERE _id=?', [
+              database.exec('UPDATE ' + settings.USER_TABLE + ' SET facebook=? WHERE _id=?', [
                 {
                   token: token,
                   name: profile.name.givenName + ' ' + profile.name.familyName,
@@ -243,11 +243,11 @@
                 email: profile.emails[0].value
               }
             };
-            database.exec('INSERT INTO users VALUES ?', [newUser]);
+            database.exec('INSERT INTO ' + settings.USER_TABLE + ' VALUES ?', [newUser]);
             return done(null, newUser);
           }
         } else {
-          database.exec('UPDATE users SET facebook=? WHERE _id=?', [
+          database.exec('UPDATE ' + settings.USER_TABLE + ' SET facebook=? WHERE _id=?', [
             {
               id: profile.id,
               token: token,
@@ -283,10 +283,10 @@
       }, function(req, token, refreshToken, profile, done) {
         var newUser, users;
         if (!req(user)) {
-          users = database.exec('SELECT * FROM users WHERE github->id=?', [profile.id]);
+          users = database.exec('SELECT * FROM ' + settings.USER_TABLE + ' WHERE github->id=?', [profile.id]);
           if (users && users.length) {
             if (!users[0].github.token) {
-              database.exec('UPDATE users SET github=? WHERE _id=?', [
+              database.exec('UPDATE ' + settings.USER_TABLE + ' SET github=? WHERE _id=?', [
                 {
                   token: token,
                   name: profile.displayName,
@@ -306,11 +306,11 @@
                 email: profile.emails[0].value
               }
             };
-            database.exec('INSERT INTO users VALUES ?', [newUser]);
+            database.exec('INSERT INTO ' + settings.USER_TABLE + ' VALUES ?', [newUser]);
             return done(null, newUser);
           }
         } else {
-          database.exec('UPDATE users SET github=? WHERE _id=?', [
+          database.exec('UPDATE ' + settings.USER_TABLE + ' SET github=? WHERE _id=?', [
             {
               id: profile.id,
               token: token,

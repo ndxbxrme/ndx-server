@@ -12,11 +12,12 @@ module.exports =
     config.awsRegion = settings.AWS_REGION or 'us-east-1'
     config.awsId = settings.AWS_ID
     config.awsKey = settings.AWS_KEY
+    settings.USER_TABLE = settings.USER_TABLE or config.userTable or 'users'
     if config.tables and config.tables.length
-      if config.tables.indexOf('users') is -1
-        config.tables.push 'users'
+      if config.tables.indexOf(settings.USER_TABLE) is -1
+        config.tables.push settings.USER_TABLE
     else
-      config.tables = ['users']
+      config.tables = [settings.USER_TABLE]
     @
   controller: (ctrl) ->
     type = Object.prototype.toString.call ctrl
@@ -46,7 +47,7 @@ module.exports =
     .use bodyParser.json()
 
     require('./passport.js') app, database, config
-    require('./keep-awake.js') app, port
+    require('./keep-awake.js') app, config.host
     for ctrl in controllers
       ctrl app, database
     

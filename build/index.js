@@ -18,12 +18,13 @@
       config.awsRegion = settings.AWS_REGION || 'us-east-1';
       config.awsId = settings.AWS_ID;
       config.awsKey = settings.AWS_KEY;
+      settings.USER_TABLE = settings.USER_TABLE || config.userTable || 'users';
       if (config.tables && config.tables.length) {
-        if (config.tables.indexOf('users') === -1) {
-          config.tables.push('users');
+        if (config.tables.indexOf(settings.USER_TABLE) === -1) {
+          config.tables.push(settings.USER_TABLE);
         }
       } else {
-        config.tables = ['users'];
+        config.tables = [settings.USER_TABLE];
       }
       return this;
     },
@@ -57,7 +58,7 @@
         database: database
       })).use(bodyParser.json());
       require('./passport.js')(app, database, config);
-      require('./keep-awake.js')(app, port);
+      require('./keep-awake.js')(app, config.host);
       for (i = 0, len = controllers.length; i < len; i++) {
         ctrl = controllers[i];
         ctrl(app, database);

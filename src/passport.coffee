@@ -49,7 +49,7 @@ module.exports = (app, database) ->
         if bits.length is 2
           d = new Date bits[1]
           if d.toString() isnt 'Invalid Date'
-            users = database.exec 'SELECT * FROM users WHERE _id=?', [bits[0]]
+            users = database.exec 'SELECT * FROM ' + settings.USER_TABLE + ' WHERE _id=?', [bits[0]]
             if users and users.length
               req.user = users[0]
               setCookie req, res
@@ -70,7 +70,7 @@ module.exports = (app, database) ->
     passwordField: 'password'
     passReqToCallback: true
   , (req, email, password, done) ->
-    users = database.exec 'SELECT * FROM users WHERE local->email=?', [email]
+    users = database.exec 'SELECT * FROM ' + settings.USER_TABLE + ' WHERE local->email=?', [email]
     if users and users.length
       return done(null, false, req.flash('signupMessage', 'That email is already taken.'))
     else
@@ -79,14 +79,14 @@ module.exports = (app, database) ->
         local:
           email: email
           password: generateHash password
-      database.exec 'INSERT INTO users VALUES ?', [newUser]
+      database.exec 'INSERT INTO ' + settings.USER_TABLE + ' VALUES ?', [newUser]
       done null, newUser
   passport.use 'local-login', new LocalStrategy
     usernameField: 'email'
     passwordField: 'password'
     passReqToCallback: true
   , (req, email, password, done) ->
-    users = database.exec 'SELECT * FROM users WHERE local->email=?', [email]
+    users = database.exec 'SELECT * FROM ' + settings.USER_TABLE + ' WHERE local->email=?', [email]
     if users and users.length
       if not validPassword password, users[0].local.password
         return done(null, false, req.flash('loginMessage', 'Wrong password'))
@@ -120,10 +120,10 @@ module.exports = (app, database) ->
     , (req, token, tokenSecret, profile, done) ->
       process.nextTick ->
         if not req.user
-          users = database.exec 'SELECT * FROM users WHERE twitter->id=?', [profile.id]
+          users = database.exec 'SELECT * FROM ' + settings.USER_TABLE + ' WHERE twitter->id=?', [profile.id]
           if users and users.length
             if not users[0].twitter.token
-              database.exec 'UPDATE users SET twitter=? WHERE _id=?', [
+              database.exec 'UPDATE ' + settings.USER_TABLE + ' SET twitter=? WHERE _id=?', [
                 {
                   id: profile.id
                   token: token
@@ -142,10 +142,10 @@ module.exports = (app, database) ->
                 token: token
                 username: profile.username
                 displayName: profile.displayName
-            database.exec 'INSERT INTO users VALUES ?', [newUser]
+            database.exec 'INSERT INTO ' + settings.USER_TABLE + ' VALUES ?', [newUser]
             return done null, newUser
         else
-          database.exec 'UPDATE users SET twitter=? WHERE _id=?', [
+          database.exec 'UPDATE ' + settings.USER_TABLE + ' SET twitter=? WHERE _id=?', [
             {
               id: profile.id
               token: token
@@ -177,10 +177,10 @@ module.exports = (app, database) ->
       passReqToCallback: true
     , (req, token, refreshToken, profile, done) ->
       if not req user
-        users = database.exec 'SELECT * FROM users WHERE facebook->id=?', [profile.id]
+        users = database.exec 'SELECT * FROM ' + settings.USER_TABLE + ' WHERE facebook->id=?', [profile.id]
         if users and users.length
           if not users[0].facebook.token
-            database.exec 'UPDATE users SET facebook=? WHERE _id=?', [
+            database.exec 'UPDATE ' + settings.USER_TABLE + ' SET facebook=? WHERE _id=?', [
               {
                 token: token
                 name: profile.name.givenName + ' ' + profile.name.familyName
@@ -198,10 +198,10 @@ module.exports = (app, database) ->
               token: token
               name: profile.name.givenName + ' ' + profile.name.familyName
               email: profile.emails[0].value
-          database.exec 'INSERT INTO users VALUES ?', [newUser]
+          database.exec 'INSERT INTO ' + settings.USER_TABLE + ' VALUES ?', [newUser]
           return done null, newUser
       else
-        database.exec 'UPDATE users SET facebook=? WHERE _id=?', [
+        database.exec 'UPDATE ' + settings.USER_TABLE + ' SET facebook=? WHERE _id=?', [
           {
             id: profile.id
             token: token
@@ -233,10 +233,10 @@ module.exports = (app, database) ->
       passReqToCallback: true
     , (req, token, refreshToken, profile, done) ->
       if not req user
-        users = database.exec 'SELECT * FROM users WHERE github->id=?', [profile.id]
+        users = database.exec 'SELECT * FROM ' + settings.USER_TABLE + ' WHERE github->id=?', [profile.id]
         if users and users.length
           if not users[0].github.token
-            database.exec 'UPDATE users SET github=? WHERE _id=?', [
+            database.exec 'UPDATE ' + settings.USER_TABLE + ' SET github=? WHERE _id=?', [
               {
                 token: token
                 name: profile.displayName
@@ -254,10 +254,10 @@ module.exports = (app, database) ->
               token: token
               name: profile.displayName
               email: profile.emails[0].value
-          database.exec 'INSERT INTO users VALUES ?', [newUser]
+          database.exec 'INSERT INTO ' + settings.USER_TABLE + ' VALUES ?', [newUser]
           return done null, newUser
       else
-        database.exec 'UPDATE users SET github=? WHERE _id=?', [
+        database.exec 'UPDATE ' + settings.USER_TABLE + ' SET github=? WHERE _id=?', [
           {
             id: profile.id
             token: token
