@@ -40,8 +40,9 @@
     },
     use: function(ctrl) {},
     start: function() {
-      var app, bodyParser, compression, ctrl, database, express, http, i, len, maintenance, port, server, socket;
+      var app, bodyParser, compression, ctrl, database, express, helmet, http, i, len, maintenance, port, server, socket;
       console.log('ndx server starting');
+      console.log(config);
       database = require('ndxdb')(config);
       require('memory-tick').start(60, function(mem) {
         return console.log('memory', mem);
@@ -50,11 +51,12 @@
       compression = require('compression');
       bodyParser = require('body-parser');
       http = require('http');
+      helmet = require('helmet');
       socket = require('./socket.js');
       maintenance = require('./maintenance.js');
       app = express();
       port = config.port || settings.PORT;
-      app.use(compression()).use(maintenance({
+      app.use(compression()).use(helmet()).use(maintenance({
         database: database
       })).use(bodyParser.json());
       require('./passport.js')(app, database, config);

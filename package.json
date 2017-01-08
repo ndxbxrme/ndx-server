@@ -36,6 +36,7 @@
     "express": "^4.14.0",
     "express-session": "^1.14.2",
     "gzippo": "^0.2.0",
+    "helmet": "^3.3.0",
     "ip": "^1.1.4",
     "memory-tick": "^1.0.1",
     "ndxdb": "^1.0.9",

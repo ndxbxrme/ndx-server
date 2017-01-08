@@ -29,6 +29,7 @@ module.exports =
   use: (ctrl) ->
   start: ->
     console.log 'ndx server starting'
+    console.log config
     database = require('ndxdb') config
     require('memory-tick').start 60, (mem) ->
       console.log 'memory', mem
@@ -36,11 +37,13 @@ module.exports =
     compression = require 'compression'
     bodyParser = require 'body-parser'
     http = require 'http'
+    helmet = require 'helmet'
     socket = require './socket.js'
     maintenance = require './maintenance.js'
     app = express()
     port = config.port or settings.PORT
     app.use compression()
+    .use helmet()
     .use maintenance
       database: database
 
