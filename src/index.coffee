@@ -1,8 +1,10 @@
 'use strict'
 settings = require './settings.js'
+ObjectID = require 'bson-objectid'
 
 config = null
 controllers = []
+uselist = []
 middleware = []
 module.exports =
   config: (args) ->
@@ -24,40 +26,53 @@ module.exports =
     if type is '[object Function]'
       controllers.push ctrl
     else
-      controllers.push require(ctrl)
+      controllers.push require('../../' + ctrl)
     @
   use: (ctrl) ->
+    type = Object.prototype.toString.call ctrl
+    if type is '[object Function]'
+      uselist.push ctrl
+    else
+      uselist.push require('../../' + ctrl)
+    @
   start: ->
     console.log 'ndx server starting'
-    console.log config
-    database = require('ndxdb') config
     require('memory-tick').start 60, (mem) ->
       console.log 'memory', mem
+    ndx =
+      id: ObjectID.generate()
+    ndx.database = require('ndxdb')
+    .config config
+    .start()
     express = require 'express'
     compression = require 'compression'
     bodyParser = require 'body-parser'
     http = require 'http'
     helmet = require 'helmet'
-    socket = require './socket.js'
     maintenance = require './maintenance.js'
-    app = express()
-    port = config.port or settings.PORT
-    app.use compression()
+    ndx.app = express()
+    ndx.port = settings.PORT or config.port
+    ndx.host = settings.HOST or config.host
+    ndx.settings = settings
+    ndx.app.use compression()
     .use helmet()
     .use maintenance
-      database: database
+      database: ndx.database
 
     .use bodyParser.json()
 
-    require('./passport.js') app, database, config
-    require('./keep-awake.js') app, config.host
-    for ctrl in controllers
-      ctrl app, database, socket
+    #require('./passport.js') ndx
+    #require('./keep-awake.js') ndx
+    ndx.server = http.createServer ndx.app
     
-    require('./static_routes.js') app
+    ndx.app.get '/api/db', (req, res) ->
+      res.json ndx.database.getDb()
+    
+    for useCtrl in uselist
+      useCtrl ndx
+    for ctrl in controllers
+      ctrl ndx
 
-    server = http.createServer app
-    socket.setup server
 
-    server.listen port, ->
-      console.log 'ndx server listening on', port
+    ndx.server.listen ndx.port, ->
+      console.log 'ndx server listening on', ndx.port

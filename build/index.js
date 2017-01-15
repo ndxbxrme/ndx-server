@@ -1,12 +1,16 @@
 (function() {
   'use strict';
-  var config, controllers, middleware, settings;
+  var ObjectID, config, controllers, middleware, settings, uselist;
 
   settings = require('./settings.js');
+
+  ObjectID = require('bson-objectid');
 
   config = null;
 
   controllers = [];
+
+  uselist = [];
 
   middleware = [];
 
@@ -34,42 +38,57 @@
       if (type === '[object Function]') {
         controllers.push(ctrl);
       } else {
-        controllers.push(require(ctrl));
+        controllers.push(require('../../' + ctrl));
       }
       return this;
     },
-    use: function(ctrl) {},
+    use: function(ctrl) {
+      var type;
+      type = Object.prototype.toString.call(ctrl);
+      if (type === '[object Function]') {
+        uselist.push(ctrl);
+      } else {
+        uselist.push(require('../../' + ctrl));
+      }
+      return this;
+    },
     start: function() {
-      var app, bodyParser, compression, ctrl, database, express, helmet, http, i, len, maintenance, port, server, socket;
+      var bodyParser, compression, ctrl, express, helmet, http, i, j, len, len1, maintenance, ndx, useCtrl;
       console.log('ndx server starting');
-      console.log(config);
-      database = require('ndxdb')(config);
       require('memory-tick').start(60, function(mem) {
         return console.log('memory', mem);
       });
+      ndx = {
+        id: ObjectID.generate()
+      };
+      ndx.database = require('ndxdb').config(config).start();
       express = require('express');
       compression = require('compression');
       bodyParser = require('body-parser');
       http = require('http');
       helmet = require('helmet');
-      socket = require('./socket.js');
       maintenance = require('./maintenance.js');
-      app = express();
-      port = config.port || settings.PORT;
-      app.use(compression()).use(helmet()).use(maintenance({
-        database: database
+      ndx.app = express();
+      ndx.port = settings.PORT || config.port;
+      ndx.host = settings.HOST || config.host;
+      ndx.settings = settings;
+      ndx.app.use(compression()).use(helmet()).use(maintenance({
+        database: ndx.database
       })).use(bodyParser.json());
-      require('./passport.js')(app, database, config);
-      require('./keep-awake.js')(app, config.host);
-      for (i = 0, len = controllers.length; i < len; i++) {
-        ctrl = controllers[i];
-        ctrl(app, database, socket);
+      ndx.server = http.createServer(ndx.app);
+      ndx.app.get('/api/db', function(req, res) {
+        return res.json(ndx.database.getDb());
+      });
+      for (i = 0, len = uselist.length; i < len; i++) {
+        useCtrl = uselist[i];
+        useCtrl(ndx);
       }
-      require('./static_routes.js')(app);
-      server = http.createServer(app);
-      socket.setup(server);
-      return server.listen(port, function() {
-        return console.log('ndx server listening on', port);
+      for (j = 0, len1 = controllers.length; j < len1; j++) {
+        ctrl = controllers[j];
+        ctrl(ndx);
+      }
+      return ndx.server.listen(ndx.port, function() {
+        return console.log('ndx server listening on', ndx.port);
       });
     }
   };

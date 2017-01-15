@@ -5,8 +5,8 @@ ndx = require './index.js'
   database: 'rb'
   tables: ['users', 'tasks']
   port: 23000
-.controller (app) ->
-  app.get '/api/thing', (req, res) ->
+.controller (ndx) ->
+  ndx.app.get '/api/thing', (req, res) ->
     res.json
       hey: 'yo'
 .start()
