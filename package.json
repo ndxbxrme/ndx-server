@@ -1,6 +1,6 @@
 {
   "name": "ndx-server",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "my server framework",
   "main": "build/index.js",
   "scripts": {
@@ -32,7 +32,6 @@
     "bson-objectid": "^1.1.4",
     "compression": "^1.6.2",
     "express": "^4.14.0",
-    "gzippo": "^0.2.0",
     "helmet": "^3.3.0",
     "ip": "^1.1.4",
     "memory-tick": "^1.0.1",
