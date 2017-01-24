@@ -51,6 +51,7 @@ module.exports =
     helmet = require 'helmet'
     maintenance = require './maintenance.js'
     ndx.app = express()
+    ndx.static = express.static
     ndx.port = settings.PORT or config.port
     ndx.host = settings.HOST or config.host
     ndx.settings = settings

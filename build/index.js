@@ -69,6 +69,7 @@
       helmet = require('helmet');
       maintenance = require('./maintenance.js');
       ndx.app = express();
+      ndx["static"] = express["static"];
       ndx.port = settings.PORT || config.port;
       ndx.host = settings.HOST || config.host;
       ndx.settings = settings;
