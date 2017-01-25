@@ -8,7 +8,8 @@ uselist = []
 middleware = []
 module.exports =
   config: (args) ->
-    config = args
+    config = args or {}
+    config.database = config.database or settings.DATABASE or 'db'
     config.autoId = '_id'
     config.awsBucket = settings.AWS_BUCKET
     config.awsRegion = settings.AWS_REGION or 'us-east-1'

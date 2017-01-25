@@ -16,7 +16,8 @@
 
   module.exports = {
     config: function(args) {
-      config = args;
+      config = args || {};
+      config.database = config.database || settings.DATABASE || 'db';
       config.autoId = '_id';
       config.awsBucket = settings.AWS_BUCKET;
       config.awsRegion = settings.AWS_REGION || 'us-east-1';
