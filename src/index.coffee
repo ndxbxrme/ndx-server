@@ -38,10 +38,20 @@ module.exports =
     @
   start: ->
     console.log 'ndx server starting'
+    if not config
+      @config()
     require('memory-tick').start 60 * 10, (mem) ->
       console.log 'memory:', mem
     ndx =
       id: ObjectID.generate()
+      extend: (dest, source) ->
+        if not dest
+          dest = {}
+        if not source
+          source = {}
+        for i of source
+          if source.hasOwnProperty(i)
+            dest[i] = source[i]            
     ndx.database = require('ndxdb')
     .config config
     .start()

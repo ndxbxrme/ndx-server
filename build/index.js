@@ -54,13 +54,34 @@
       return this;
     },
     start: function() {
-      var bodyParser, compression, ctrl, express, helmet, http, i, j, len, len1, maintenance, ndx, useCtrl;
+      var bodyParser, compression, ctrl, express, helmet, http, j, k, len, len1, maintenance, ndx, useCtrl;
       console.log('ndx server starting');
+      if (!config) {
+        this.config();
+      }
       require('memory-tick').start(60 * 10, function(mem) {
         return console.log('memory:', mem);
       });
       ndx = {
-        id: ObjectID.generate()
+        id: ObjectID.generate(),
+        extend: function(dest, source) {
+          var i, results;
+          if (!dest) {
+            dest = {};
+          }
+          if (!source) {
+            source = {};
+          }
+          results = [];
+          for (i in source) {
+            if (source.hasOwnProperty(i)) {
+              results.push(dest[i] = source[i]);
+            } else {
+              results.push(void 0);
+            }
+          }
+          return results;
+        }
       };
       ndx.database = require('ndxdb').config(config).start();
       express = require('express');
@@ -81,12 +102,12 @@
       ndx.app.get('/api/db', function(req, res) {
         return res.json(ndx.database.getDb());
       });
-      for (i = 0, len = uselist.length; i < len; i++) {
-        useCtrl = uselist[i];
+      for (j = 0, len = uselist.length; j < len; j++) {
+        useCtrl = uselist[j];
         useCtrl(ndx);
       }
-      for (j = 0, len1 = controllers.length; j < len1; j++) {
-        ctrl = controllers[j];
+      for (k = 0, len1 = controllers.length; k < len1; k++) {
+        ctrl = controllers[k];
         ctrl(ndx);
       }
       return ndx.server.listen(ndx.port, function() {
