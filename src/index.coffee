@@ -37,8 +37,8 @@ module.exports =
     @
   start: ->
     console.log 'ndx server starting'
-    require('memory-tick').start 60, (mem) ->
-      console.log 'memory', mem
+    require('memory-tick').start 60 * 10, (mem) ->
+      console.log 'memory:', mem
     ndx =
       id: ObjectID.generate()
     ndx.database = require('ndxdb')

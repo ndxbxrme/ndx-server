@@ -1,6 +1,6 @@
 {
   "name": "ndx-server",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "my server framework",
   "main": "build/index.js",
   "scripts": {
@@ -25,20 +25,13 @@
     "load-grunt-tasks": "^3.5.2"
   },
   "dependencies": {
-    "app-root-path": "^2.0.1",
-    "async": "^2.1.4",
     "bcrypt-nodejs": "0.0.3",
     "body-parser": "^1.15.2",
     "bson-objectid": "^1.1.4",
     "compression": "^1.6.2",
     "express": "^4.14.0",
     "helmet": "^3.3.0",
-    "ip": "^1.1.4",
     "memory-tick": "^1.0.1",
-    "ndxdb": "^1.1.4",
-    "passport-facebook": "^2.1.1",
-    "passport-github": "^1.1.0",
-    "passport-twitter": "^1.0.4",
-    "socket.io": "^1.7.2"
+    "ndxdb": "^1.1.4"
   }
 }

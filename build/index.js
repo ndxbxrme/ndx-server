@@ -55,8 +55,8 @@
     start: function() {
       var bodyParser, compression, ctrl, express, helmet, http, i, j, len, len1, maintenance, ndx, useCtrl;
       console.log('ndx server starting');
-      require('memory-tick').start(60, function(mem) {
-        return console.log('memory', mem);
+      require('memory-tick').start(60 * 10, function(mem) {
+        return console.log('memory:', mem);
       });
       ndx = {
         id: ObjectID.generate()
