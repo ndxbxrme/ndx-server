@@ -1,10 +1,12 @@
 (function() {
   'use strict';
-  var ObjectID, config, controllers, middleware, settings, uselist;
+  var ObjectID, chalk, config, controllers, middleware, settings, uselist;
 
   settings = require('./settings.js');
 
   ObjectID = require('bson-objectid');
+
+  chalk = require('chalk');
 
   config = null;
 
@@ -111,7 +113,7 @@
         ctrl(ndx);
       }
       return ndx.server.listen(ndx.port, function() {
-        return console.log('ndx server listening on', ndx.port);
+        return console.log(chalk.yellow('ndx server listening on', ndx.port));
       });
     }
   };

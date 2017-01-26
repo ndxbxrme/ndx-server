@@ -1,6 +1,7 @@
 'use strict'
 settings = require './settings.js'
 ObjectID = require 'bson-objectid'
+chalk = require 'chalk'
 
 config = null
 controllers = []
@@ -87,4 +88,4 @@ module.exports =
 
 
     ndx.server.listen ndx.port, ->
-      console.log 'ndx server listening on', ndx.port
+      console.log chalk.yellow 'ndx server listening on', ndx.port
