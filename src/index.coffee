@@ -2,6 +2,8 @@
 settings = require './settings.js'
 ObjectID = require 'bson-objectid'
 chalk = require 'chalk'
+version = require '../package'
+.version
 
 config = null
 controllers = []
@@ -38,11 +40,9 @@ module.exports =
       uselist.push require('../../' + ctrl)
     @
   start: ->
-    console.log 'ndx server starting'
+    console.log "ndx server starting"
     if not config
       @config()
-    require('memory-tick').start 60 * 10, (mem) ->
-      console.log 'memory:', mem
     ndx =
       id: ObjectID.generate()
       extend: (dest, source) ->
@@ -59,6 +59,8 @@ module.exports =
     express = require 'express'
     compression = require 'compression'
     bodyParser = require 'body-parser'
+    session = require 'express-session'
+    cookieParser = require 'cookie-parser'
     http = require 'http'
     helmet = require 'helmet'
     maintenance = require './maintenance.js'
@@ -71,15 +73,14 @@ module.exports =
     .use helmet()
     .use maintenance
       database: ndx.database
-
     .use bodyParser.json()
+    .use cookieParser ndx.settings.SESSION_SECRET
+    .use session
+      secret: ndx.settings.SESSION_SECRET
+      saveUninitialized: true
+      resave: true
 
-    #require('./passport.js') ndx
-    #require('./keep-awake.js') ndx
     ndx.server = http.createServer ndx.app
-    
-    ndx.app.get '/api/db', (req, res) ->
-      res.json ndx.database.getDb()
     
     for useCtrl in uselist
       useCtrl ndx
@@ -88,4 +89,4 @@ module.exports =
 
 
     ndx.server.listen ndx.port, ->
-      console.log chalk.yellow 'ndx server listening on', ndx.port
+      console.log chalk.yellow "ndx server v#{chalk.cyan.bold(version)} listening on #{chalk.cyan.bold(ndx.port)}"

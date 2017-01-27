@@ -1,6 +1,10 @@
 module.exports = (grunt) ->
   require('load-grunt-tasks') grunt
   grunt.initConfig
+    express:
+      web:
+        options:
+          script: 'build/test.js'
     watch:
       coffee:
         files: ['src/**/*.coffee']
@@ -26,4 +30,9 @@ module.exports = (grunt) ->
   grunt.registerTask 'default', [
     'build'
     'watch'
+  ]
+  grunt.registerTask 'test', [
+    'build'
+    'express:web'
+    'keepalive'
   ]

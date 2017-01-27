@@ -1,12 +1,14 @@
 (function() {
   'use strict';
-  var ObjectID, chalk, config, controllers, middleware, settings, uselist;
+  var ObjectID, chalk, config, controllers, middleware, settings, uselist, version;
 
   settings = require('./settings.js');
 
   ObjectID = require('bson-objectid');
 
   chalk = require('chalk');
+
+  version = require('../package').version;
 
   config = null;
 
@@ -56,14 +58,11 @@
       return this;
     },
     start: function() {
-      var bodyParser, compression, ctrl, express, helmet, http, j, k, len, len1, maintenance, ndx, useCtrl;
-      console.log('ndx server starting');
+      var bodyParser, compression, cookieParser, ctrl, express, helmet, http, j, k, len, len1, maintenance, ndx, session, useCtrl;
+      console.log("ndx server starting");
       if (!config) {
         this.config();
       }
-      require('memory-tick').start(60 * 10, function(mem) {
-        return console.log('memory:', mem);
-      });
       ndx = {
         id: ObjectID.generate(),
         extend: function(dest, source) {
@@ -89,6 +88,8 @@
       express = require('express');
       compression = require('compression');
       bodyParser = require('body-parser');
+      session = require('express-session');
+      cookieParser = require('cookie-parser');
       http = require('http');
       helmet = require('helmet');
       maintenance = require('./maintenance.js');
@@ -99,11 +100,12 @@
       ndx.settings = settings;
       ndx.app.use(compression()).use(helmet()).use(maintenance({
         database: ndx.database
-      })).use(bodyParser.json());
+      })).use(bodyParser.json()).use(cookieParser(ndx.settings.SESSION_SECRET)).use(session({
+        secret: ndx.settings.SESSION_SECRET,
+        saveUninitialized: true,
+        resave: true
+      }));
       ndx.server = http.createServer(ndx.app);
-      ndx.app.get('/api/db', function(req, res) {
-        return res.json(ndx.database.getDb());
-      });
       for (j = 0, len = uselist.length; j < len; j++) {
         useCtrl = uselist[j];
         useCtrl(ndx);
@@ -113,7 +115,7 @@
         ctrl(ndx);
       }
       return ndx.server.listen(ndx.port, function() {
-        return console.log(chalk.yellow('ndx server listening on', ndx.port));
+        return console.log(chalk.yellow("ndx server v" + (chalk.cyan.bold(version)) + " listening on " + (chalk.cyan.bold(ndx.port))));
       });
     }
   };
