@@ -60,7 +60,7 @@ module.exports =
     compression = require 'compression'
     bodyParser = require 'body-parser'
     session = require 'express-session'
-    MemoryStore = session.MemoryStore
+    MemoryStore = require('session-memory-store') session
     cookieParser = require 'cookie-parser'
     http = require 'http'
     helmet = require 'helmet'
@@ -77,11 +77,12 @@ module.exports =
     .use bodyParser.json()
     .use cookieParser ndx.settings.SESSION_SECRET
     .use session
+      name: 'NDXSESSION'
       secret: ndx.settings.SESSION_SECRET
       saveUninitialized: true
       resave: true
-      store: new MemoryStore()
-      key: 'authorization.sid'
+      store: new MemoryStore
+        expires: 60 * 5
 
     ndx.server = http.createServer ndx.app
     
