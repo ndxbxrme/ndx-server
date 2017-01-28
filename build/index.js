@@ -58,7 +58,7 @@
       return this;
     },
     start: function() {
-      var bodyParser, compression, cookieParser, ctrl, express, helmet, http, j, k, len, len1, maintenance, ndx, session, useCtrl;
+      var MemoryStore, bodyParser, compression, cookieParser, ctrl, express, helmet, http, j, k, len, len1, maintenance, ndx, session, useCtrl;
       console.log("ndx server starting");
       if (!config) {
         this.config();
@@ -89,6 +89,7 @@
       compression = require('compression');
       bodyParser = require('body-parser');
       session = require('express-session');
+      MemoryStore = session.MemoryStore;
       cookieParser = require('cookie-parser');
       http = require('http');
       helmet = require('helmet');
@@ -103,7 +104,9 @@
       })).use(bodyParser.json()).use(cookieParser(ndx.settings.SESSION_SECRET)).use(session({
         secret: ndx.settings.SESSION_SECRET,
         saveUninitialized: true,
-        resave: true
+        resave: true,
+        store: new MemoryStore(),
+        key: 'authorization.sid'
       }));
       ndx.server = http.createServer(ndx.app);
       for (j = 0, len = uselist.length; j < len; j++) {
