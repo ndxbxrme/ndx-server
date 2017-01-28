@@ -1,6 +1,6 @@
 {
   "name": "ndx-server",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "my server framework",
   "main": "build/index.js",
   "scripts": {
@@ -36,7 +36,7 @@
     "express": "^4.14.0",
     "express-session": "^1.15.0",
     "helmet": "^3.3.0",
-    "ndxdb": "^1.2.5",
+    "ndxdb": "^1.2.6",
     "session-memory-store": "^0.2.2"
   }
 }
