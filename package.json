@@ -1,6 +1,6 @@
 {
   "name": "ndx-server",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "description": "my server framework",
   "main": "build/index.js",
   "scripts": {
@@ -11,7 +11,7 @@
     "url": "https://github.com/ndxbxrme/ndx-server.git"
   },
   "author": "ndxbxrme",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/ndxbxrme/ndx-server/issues"
   },
@@ -38,7 +38,7 @@
     "express": "^4.14.0",
     "express-session": "^1.15.0",
     "helmet": "^3.3.0",
-    "ndxdb": "^1.2.8",
+    "ndxdb": "^1.2.9",
     "session-memory-store": "^0.2.2"
   }
 }
