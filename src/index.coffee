@@ -62,6 +62,7 @@ module.exports =
     session = require 'express-session'
     MemoryStore = require('session-memory-store') session
     cookieParser = require 'cookie-parser'
+    flash = require 'connect-flash'
     http = require 'http'
     helmet = require 'helmet'
     maintenance = require './maintenance.js'
@@ -83,9 +84,11 @@ module.exports =
       resave: true
       store: new MemoryStore
         expires: 60 * 5
+    .use flash()
 
     ndx.server = http.createServer ndx.app
     
+    require('./controllers/token') ndx
     for useCtrl in uselist
       useCtrl ndx
     for ctrl in controllers

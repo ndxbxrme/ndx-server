@@ -58,7 +58,7 @@
       return this;
     },
     start: function() {
-      var MemoryStore, bodyParser, compression, cookieParser, ctrl, express, helmet, http, j, k, len, len1, maintenance, ndx, session, useCtrl;
+      var MemoryStore, bodyParser, compression, cookieParser, ctrl, express, flash, helmet, http, j, k, len, len1, maintenance, ndx, session, useCtrl;
       console.log("ndx server starting");
       if (!config) {
         this.config();
@@ -91,6 +91,7 @@
       session = require('express-session');
       MemoryStore = require('session-memory-store')(session);
       cookieParser = require('cookie-parser');
+      flash = require('connect-flash');
       http = require('http');
       helmet = require('helmet');
       maintenance = require('./maintenance.js');
@@ -109,8 +110,9 @@
         store: new MemoryStore({
           expires: 60 * 5
         })
-      }));
+      })).use(flash());
       ndx.server = http.createServer(ndx.app);
+      require('./controllers/token')(ndx);
       for (j = 0, len = uselist.length; j < len; j++) {
         useCtrl = uselist[j];
         useCtrl(ndx);
