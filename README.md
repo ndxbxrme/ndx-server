@@ -115,4 +115,4 @@ other modules can add extra properties and methods to the `ndx` object, eg `ndx-
 
 ## ndx-framework
 
-Use the [ndx-framework](https://github.com/ndxbxrme/ndx-framework) app to quickly create and connect to ndx-server apps
+Use the [ndx-framework](https://github.com/ndxbxrme/ndx-framework) app to quickly create, connect to and configure ndx-server apps
