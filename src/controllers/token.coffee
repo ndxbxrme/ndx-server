@@ -16,8 +16,7 @@ module.exports = (ndx) ->
       if req.user
         next()
       else
-        res.json
-          error: 'Not authenticated'
+        throw ndx.UNAUTHORIZED
   ndx.generateToken = (userId, ip) ->
     text = userId + '||' + new Date().toString()
     text = crypto.Rabbit.encrypt(text, ip).toString()
