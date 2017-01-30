@@ -101,7 +101,8 @@ module.exports =
       message: 'Not authorized'
       
     ndx.app.use (err, req, res, next) ->
-      res.status(err.status or 500).send err.message
+      message = err.message or err.toString()
+      res.status(err.status or 500).send message
 
 
     ndx.server.listen ndx.port, ->
