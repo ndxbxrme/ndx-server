@@ -1,6 +1,13 @@
 # ndx-server 
 A lightweight, robust, modular server built on [Express](http://expressjs.com/) and [Alasql](https://github.com/agershun/alasql)  
 
+### Features
+- No need for a database server
+- Persists to S3 with as few reads and writes as possible
+- Sessionless tokens can withstand a server restart
+- Scale servers easily using [ndx-sync](https://github.com/ndxbxrme/ndx-sync)
+- Schemaless SQL database which treats javascript objects as first class citizens
+
 `npm install --save ndx-server`
 ```javascript
 var ndx = require('ndx-server');
@@ -94,6 +101,7 @@ other modules can add extra properties and methods to the `ndx` object, eg `ndx-
 - [ndx-connect](https://github.com/ndxbxrme/ndx-connect) - external database connection for superadmin users
 - [ndx-database-backup](https://github.com/ndxbxrme/ndx-database-backup) - regularly backs up the database
 - [ndx-keep-awake](https://github.com/ndxbxrme/ndx-keep-awake) - keeps the server alive (useful for free hosts, eg heroku)
+- [ndx-memory-check](https://github.com/ndxbxrme/ndx-memory-check) - check the memory status of your server
 - [ndx-passport](https://github.com/ndxbxrme/ndx-passport) - local login
 - [ndx-passport-facebook](https://github.com/ndxbxrme/ndx-passport-facebook) - facebook login
 - [ndx-passport-github](https://github.com/ndxbxrme/ndx-passport-github) - github login

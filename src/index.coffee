@@ -97,3 +97,4 @@ module.exports =
 
     ndx.server.listen ndx.port, ->
       console.log chalk.yellow "ndx server v#{chalk.cyan.bold(version)} listening on #{chalk.cyan.bold(ndx.port)}"
+    global.gc?()

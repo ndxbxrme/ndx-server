@@ -121,9 +121,10 @@
         ctrl = controllers[k];
         ctrl(ndx);
       }
-      return ndx.server.listen(ndx.port, function() {
+      ndx.server.listen(ndx.port, function() {
         return console.log(chalk.yellow("ndx server v" + (chalk.cyan.bold(version)) + " listening on " + (chalk.cyan.bold(ndx.port))));
       });
+      return typeof global.gc === "function" ? global.gc() : void 0;
     }
   };
 
