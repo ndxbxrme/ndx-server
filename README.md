@@ -89,6 +89,7 @@ The `ndx` object gets passed to each controller and service
 
 - `ndx.generateHash(string) -> hashed string`
 - `ndx.validPassword(password, hashedPassword) -> bool`
+- `ndx.authenticate()` middleware to authenticate a route, see [ndx-user-roles](https://github.com/ndxbxrme/ndx-user-roles) for a more robust implementation
 - `ndx.postAuthenticate(req, res, next)` used internally
 - `ndx.generateToken(string userId, string ip) -> new user token`
 - `ndx.setAuthCookie(req, res)` used internally

@@ -17,6 +17,17 @@
       ndx.setAuthCookie(req, res);
       return res.redirect('/');
     };
+    ndx.authenticate = function() {
+      return function(req, res, next) {
+        if (req.user) {
+          return next();
+        } else {
+          return res.json({
+            error: 'Not authenticated'
+          });
+        }
+      };
+    };
     ndx.generateToken = function(userId, ip) {
       var text;
       text = userId + '||' + new Date().toString();

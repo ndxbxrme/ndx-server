@@ -11,6 +11,13 @@ module.exports = (ndx) ->
   ndx.postAuthenticate = (req, res, next) ->
     ndx.setAuthCookie req, res
     res.redirect '/'
+  ndx.authenticate = () ->
+    (req, res, next) ->
+      if req.user
+        next()
+      else
+        res.json
+          error: 'Not authenticated'
   ndx.generateToken = (userId, ip) ->
     text = userId + '||' + new Date().toString()
     text = crypto.Rabbit.encrypt(text, ip).toString()
