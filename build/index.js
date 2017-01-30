@@ -100,7 +100,7 @@
       ndx.port = settings.PORT || config.port;
       ndx.host = settings.HOST || config.host;
       ndx.settings = settings;
-      ndx.app.use(compression()).use(helmet()).use(morgan('tiny')).use(maintenance({
+      ndx.app.use(compression()).use(helmet()).use(maintenance({
         database: ndx.database
       })).use(bodyParser.json()).use(cookieParser(ndx.settings.SESSION_SECRET)).use(session({
         name: 'NDXSESSION',

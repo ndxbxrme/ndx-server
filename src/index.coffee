@@ -74,7 +74,7 @@ module.exports =
     ndx.settings = settings
     ndx.app.use compression()
     .use helmet()
-    .use morgan 'tiny'
+    #.use morgan 'tiny'
     .use maintenance
       database: ndx.database
     .use bodyParser.json()
