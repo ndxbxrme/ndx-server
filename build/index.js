@@ -121,6 +121,13 @@
         ctrl = controllers[k];
         ctrl(ndx);
       }
+      ndx.UNAUTHORIZED = {
+        status: 401,
+        message: 'Not authorized'
+      };
+      ndx.app.use(function(err, req, res, next) {
+        return res.status(err.status || 500).send(err.message);
+      });
       ndx.server.listen(ndx.port, function() {
         return console.log(chalk.yellow("ndx server v" + (chalk.cyan.bold(version)) + " listening on " + (chalk.cyan.bold(ndx.port))));
       });

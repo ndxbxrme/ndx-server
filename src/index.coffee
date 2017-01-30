@@ -95,6 +95,13 @@ module.exports =
       useCtrl ndx
     for ctrl in controllers
       ctrl ndx
+      
+    ndx.UNAUTHORIZED =
+      status: 401
+      message: 'Not authorized'
+      
+    ndx.app.use (err, req, res, next) ->
+      res.status(err.status or 500).send err.message
 
 
     ndx.server.listen ndx.port, ->
