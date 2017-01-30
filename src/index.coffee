@@ -65,6 +65,7 @@ module.exports =
     flash = require 'connect-flash'
     http = require 'http'
     helmet = require 'helmet'
+    #morgan = require 'morgan'
     maintenance = require './maintenance.js'
     ndx.app = express()
     ndx.static = express.static
@@ -73,6 +74,7 @@ module.exports =
     ndx.settings = settings
     ndx.app.use compression()
     .use helmet()
+    .use morgan 'tiny'
     .use maintenance
       database: ndx.database
     .use bodyParser.json()
@@ -97,4 +99,8 @@ module.exports =
 
     ndx.server.listen ndx.port, ->
       console.log chalk.yellow "ndx server v#{chalk.cyan.bold(version)} listening on #{chalk.cyan.bold(ndx.port)}"
-    global.gc?()
+      
+    if global.gc
+      setInterval ->
+        global.gc?()
+      , 2 * 60 * 1000

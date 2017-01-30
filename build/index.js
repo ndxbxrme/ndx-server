@@ -100,7 +100,7 @@
       ndx.port = settings.PORT || config.port;
       ndx.host = settings.HOST || config.host;
       ndx.settings = settings;
-      ndx.app.use(compression()).use(helmet()).use(maintenance({
+      ndx.app.use(compression()).use(helmet()).use(morgan('tiny')).use(maintenance({
         database: ndx.database
       })).use(bodyParser.json()).use(cookieParser(ndx.settings.SESSION_SECRET)).use(session({
         name: 'NDXSESSION',
@@ -124,7 +124,11 @@
       ndx.server.listen(ndx.port, function() {
         return console.log(chalk.yellow("ndx server v" + (chalk.cyan.bold(version)) + " listening on " + (chalk.cyan.bold(ndx.port))));
       });
-      return typeof global.gc === "function" ? global.gc() : void 0;
+      if (global.gc) {
+        return setInterval(function() {
+          return typeof global.gc === "function" ? global.gc() : void 0;
+        }, 2 * 60 * 1000);
+      }
     }
   };
 
