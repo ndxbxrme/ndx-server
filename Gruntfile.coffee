@@ -23,6 +23,8 @@ module.exports = (grunt) ->
     clean:
       build: 'build'
       html: 'build/client/*/**/*.html'
+    nodeunit:
+      tests: ['build/test/**/*.js']
   grunt.registerTask 'build', [
     'clean:build'
     'coffee'
@@ -33,6 +35,5 @@ module.exports = (grunt) ->
   ]
   grunt.registerTask 'test', [
     'build'
-    'express:web'
-    'keepalive'
+    'nodeunit'
   ]

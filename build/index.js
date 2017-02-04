@@ -28,6 +28,7 @@
       config.awsId = settings.AWS_ID;
       config.awsKey = settings.AWS_KEY;
       settings.USER_TABLE = settings.USER_TABLE || config.userTable || 'users';
+      settings.publicUser = settings.PUBLIC_USER || config.publicUser;
       if (config.tables && config.tables.length) {
         if (config.tables.indexOf(settings.USER_TABLE) === -1) {
           config.tables.push(settings.USER_TABLE);

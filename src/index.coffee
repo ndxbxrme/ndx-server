@@ -19,6 +19,7 @@ module.exports =
     config.awsId = settings.AWS_ID
     config.awsKey = settings.AWS_KEY
     settings.USER_TABLE = settings.USER_TABLE or config.userTable or 'users'
+    settings.publicUser = settings.PUBLIC_USER or config.publicUser
     if config.tables and config.tables.length
       if config.tables.indexOf(settings.USER_TABLE) is -1
         config.tables.push settings.USER_TABLE
