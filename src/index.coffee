@@ -101,7 +101,7 @@ module.exports =
       status: 401
       message: 'Not authorized'
       
-    process.setImmediate ->
+    setImmediate ->
       ndx.app.use (err, req, res, next) ->
         message = err.message or err.toString()
         res.status(err.status or 500).send message
