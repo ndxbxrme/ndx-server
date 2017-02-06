@@ -126,7 +126,7 @@
         status: 401,
         message: 'Not authorized'
       };
-      process.nextTick(function() {
+      process.setImmediate(function() {
         return ndx.app.use(function(err, req, res, next) {
           var message;
           message = err.message || err.toString();
