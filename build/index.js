@@ -59,7 +59,7 @@
       return this;
     },
     start: function() {
-      var MemoryStore, bodyParser, compression, cookieParser, ctrl, express, flash, helmet, http, j, k, len, len1, maintenance, ndx, session, useCtrl;
+      var MemoryStore, bodyParser, compression, cookieParser, ctrl, express, flash, fs, helmet, http, https, j, k, len, len1, maintenance, ndx, session, useCtrl;
       console.log("ndx server starting");
       if (!config) {
         this.config();
@@ -94,11 +94,16 @@
       cookieParser = require('cookie-parser');
       flash = require('connect-flash');
       http = require('http');
+      if (settings.SSL_PORT) {
+        https = require('https');
+        fs = require('fs');
+      }
       helmet = require('helmet');
       maintenance = require('./maintenance.js');
       ndx.app = express();
       ndx["static"] = express["static"];
       ndx.port = settings.PORT || config.port;
+      ndx.ssl_port = settings.SSL_PORT;
       ndx.host = settings.HOST || config.host;
       ndx.settings = settings;
       ndx.app.use(compression()).use(helmet()).use(maintenance({
@@ -113,6 +118,12 @@
         })
       })).use(flash());
       ndx.server = http.createServer(ndx.app);
+      if (settings.SSL_PORT) {
+        ndx.sslserver = https.createServer({
+          key: fs.readFileSync('key.pem'),
+          cert: fs.readFileSync('cert.pem')
+        }, ndx.app);
+      }
       require('./controllers/token')(ndx);
       for (j = 0, len = uselist.length; j < len; j++) {
         useCtrl = uselist[j];
@@ -136,6 +147,11 @@
       ndx.server.listen(ndx.port, function() {
         return console.log(chalk.yellow("ndx server v" + (chalk.cyan.bold(version)) + " listening on " + (chalk.cyan.bold(ndx.port))));
       });
+      if (settings.SSL_PORT) {
+        ndx.sslserver.listen(ndx.ssl_port, function() {
+          return console.log(chalk.yellow("ndx ssl server v" + (chalk.cyan.bold(version)) + " listening on " + (chalk.cyan.bold(ndx.ssl_port))));
+        });
+      }
       if (global.gc) {
         return setInterval(function() {
           return typeof global.gc === "function" ? global.gc() : void 0;

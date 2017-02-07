@@ -65,12 +65,16 @@ module.exports =
     cookieParser = require 'cookie-parser'
     flash = require 'connect-flash'
     http = require 'http'
+    if settings.SSL_PORT
+      https = require 'https'
+      fs = require 'fs'
     helmet = require 'helmet'
     #morgan = require 'morgan'
     maintenance = require './maintenance.js'
     ndx.app = express()
     ndx.static = express.static
     ndx.port = settings.PORT or config.port
+    ndx.ssl_port = settings.SSL_PORT
     ndx.host = settings.HOST or config.host
     ndx.settings = settings
     ndx.app.use compression()
@@ -90,6 +94,11 @@ module.exports =
     .use flash()
 
     ndx.server = http.createServer ndx.app
+    if settings.SSL_PORT
+      ndx.sslserver = https.createServer 
+        key: fs.readFileSync 'key.pem'
+        cert: fs.readFileSync 'cert.pem'
+      , ndx.app
     
     require('./controllers/token') ndx
     for useCtrl in uselist
@@ -109,6 +118,9 @@ module.exports =
 
     ndx.server.listen ndx.port, ->
       console.log chalk.yellow "ndx server v#{chalk.cyan.bold(version)} listening on #{chalk.cyan.bold(ndx.port)}"
+    if settings.SSL_PORT
+      ndx.sslserver.listen ndx.ssl_port, ->
+        console.log chalk.yellow "ndx ssl server v#{chalk.cyan.bold(version)} listening on #{chalk.cyan.bold(ndx.ssl_port)}"
       
     if global.gc
       setInterval ->
