@@ -19,7 +19,8 @@ module.exports = (ndx) ->
         throw ndx.UNAUTHORIZED
   ndx.generateToken = (userId, ip) ->
     text = userId + '||' + new Date().toString()
-    text = crypto.Rabbit.encrypt(text, ip).toString()
+    if not ndx.settings.SKIP_IP_ENCRYPT
+      text = crypto.Rabbit.encrypt(text, ip).toString()
     text = crypto.Rabbit.encrypt(text, ndx.settings.SESSION_SECRET).toString()
     text
   ndx.setAuthCookie = (req, res) ->
@@ -43,7 +44,7 @@ module.exports = (ndx) ->
       decrypted = ''
       try
         decrypted = crypto.Rabbit.decrypt(token, ndx.settings.SESSION_SECRET).toString(crypto.enc.Utf8)
-        if decrypted
+        if decrypted and not ndx.settings.SKIP_IP_ENCRYPT
           decrypted = crypto.Rabbit.decrypt(decrypted, req.ip).toString(crypto.enc.Utf8)
       if decrypted.indexOf('||') isnt -1
         bits = decrypted.split '||'

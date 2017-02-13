@@ -83,7 +83,8 @@
             }
           }
           return results;
-        }
+        },
+        startTime: new Date().valueOf()
       };
       ndx.database = require('ndxdb').config(config).start();
       express = require('express');

@@ -53,7 +53,8 @@ module.exports =
           source = {}
         for i of source
           if source.hasOwnProperty(i)
-            dest[i] = source[i]            
+            dest[i] = source[i]
+      startTime: new Date().valueOf()
     ndx.database = require('ndxdb')
     .config config
     .start()

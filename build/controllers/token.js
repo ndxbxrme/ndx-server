@@ -29,7 +29,9 @@
     ndx.generateToken = function(userId, ip) {
       var text;
       text = userId + '||' + new Date().toString();
-      text = crypto.Rabbit.encrypt(text, ip).toString();
+      if (!ndx.settings.SKIP_IP_ENCRYPT) {
+        text = crypto.Rabbit.encrypt(text, ip).toString();
+      }
       text = crypto.Rabbit.encrypt(text, ndx.settings.SESSION_SECRET).toString();
       return text;
     };
@@ -63,7 +65,7 @@
         decrypted = '';
         try {
           decrypted = crypto.Rabbit.decrypt(token, ndx.settings.SESSION_SECRET).toString(crypto.enc.Utf8);
-          if (decrypted) {
+          if (decrypted && !ndx.settings.SKIP_IP_ENCRYPT) {
             decrypted = crypto.Rabbit.decrypt(decrypted, req.ip).toString(crypto.enc.Utf8);
           }
         } catch (undefined) {}
