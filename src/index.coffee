@@ -91,9 +91,8 @@ module.exports =
       saveUninitialized: true
       resave: true
       store: new MemoryStore
-        expires: 60 * 5
+        expires: 60
     .use flash()
-
     ndx.server = http.createServer ndx.app
     if settings.SSL_PORT
       ndx.sslserver = https.createServer 
