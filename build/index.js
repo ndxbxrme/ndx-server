@@ -153,8 +153,11 @@
           return console.log(chalk.yellow("ndx ssl server v" + (chalk.cyan.bold(version)) + " listening on " + (chalk.cyan.bold(ndx.ssl_port))));
         });
       }
+      console.log('checking gc');
       if (global.gc) {
+        console.log('got gc');
         return setInterval(function() {
+          console.log('cleaning', new Date().toLocaleString());
           return typeof global.gc === "function" ? global.gc() : void 0;
         }, 2 * 60 * 1000);
       }
