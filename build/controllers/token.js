@@ -39,7 +39,7 @@
       var cookieText;
       if (req.user) {
         cookieText = ndx.generateToken(req.user._id, req.ip);
-        return res.cookie('token', cookieText, {
+        res.cookie('token', cookieText, {
           maxAge: 7 * 24 * 60 * 60 * 1000
         });
       }
@@ -87,6 +87,7 @@
                 if (isCookie) {
                   ndx.setAuthCookie(req, res);
                 }
+                users = null;
               }
             }
           }

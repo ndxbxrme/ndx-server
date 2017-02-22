@@ -14,9 +14,10 @@ module.exports = (ndx) ->
   ndx.authenticate = () ->
     (req, res, next) ->
       if req.user
-        next()
+        return next()
       else
         throw ndx.UNAUTHORIZED
+      return
   ndx.generateToken = (userId, ip) ->
     text = userId + '||' + new Date().toString()
     if not ndx.settings.SKIP_IP_ENCRYPT
@@ -27,6 +28,7 @@ module.exports = (ndx) ->
     if req.user
       cookieText = ndx.generateToken req.user._id, req.ip
       res.cookie 'token', cookieText, maxAge: 7 * 24 * 60 * 60 * 1000  
+    return
   ndx.app.use '/api/*', (req, res, next) ->
     if not ndx.database.maintenance()
       isCookie = false
@@ -62,4 +64,5 @@ module.exports = (ndx) ->
                 req.user = users[0]
               if isCookie
                 ndx.setAuthCookie req, res
+              users = null
     next()

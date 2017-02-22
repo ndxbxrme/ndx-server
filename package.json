@@ -1,6 +1,6 @@
 {
   "name": "ndx-server",
-  "version": "0.2.25",
+  "version": "0.2.26",
   "description": "my server framework",
   "main": "build/index.js",
   "scripts": {
