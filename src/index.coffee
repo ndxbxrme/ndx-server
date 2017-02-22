@@ -124,6 +124,5 @@ module.exports =
       
     if global.gc
       setInterval ->
-        console.log 'cleaning', new Date().toLocaleString()
         global.gc?()
       , 2 * 60 * 1000
