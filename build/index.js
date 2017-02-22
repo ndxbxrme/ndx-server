@@ -155,6 +155,7 @@
       }
       if (global.gc) {
         return setInterval(function() {
+          console.log('cleaning', new Date().toLocaleString());
           return typeof global.gc === "function" ? global.gc() : void 0;
         }, 2 * 60 * 1000);
       }
