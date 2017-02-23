@@ -122,10 +122,7 @@ module.exports =
       ndx.sslserver.listen ndx.ssl_port, ->
         console.log chalk.yellow "ndx ssl server v#{chalk.cyan.bold(version)} listening on #{chalk.cyan.bold(ndx.ssl_port)}"
       
-    console.log 'checking gc'
     if global.gc
-      console.log 'got gc'
       setInterval ->
-        console.log 'cleaning', new Date().toLocaleString()
         global.gc?()
       , 2 * 60 * 1000
