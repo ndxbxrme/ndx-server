@@ -18,6 +18,7 @@ module.exports =
     config.awsRegion = settings.AWS_REGION or 'us-east-1'
     config.awsId = settings.AWS_ID
     config.awsKey = settings.AWS_KEY
+    config.maxSqlCacheSize = config.maxSqlCacheSize or settings.MAXSQLCACHESIZE
     settings.USER_TABLE = settings.USER_TABLE or config.userTable or 'users'
     settings.publicUser = settings.PUBLIC_USER or config.publicUser
     if config.tables and config.tables.length

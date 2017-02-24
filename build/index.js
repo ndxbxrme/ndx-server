@@ -27,6 +27,7 @@
       config.awsRegion = settings.AWS_REGION || 'us-east-1';
       config.awsId = settings.AWS_ID;
       config.awsKey = settings.AWS_KEY;
+      config.maxSqlCacheSize = config.maxSqlCacheSize || settings.MAXSQLCACHESIZE;
       settings.USER_TABLE = settings.USER_TABLE || config.userTable || 'users';
       settings.publicUser = settings.PUBLIC_USER || config.publicUser;
       if (config.tables && config.tables.length) {
