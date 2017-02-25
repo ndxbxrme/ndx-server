@@ -57,16 +57,13 @@ module.exports =
             dest[i] = source[i]
       startTime: new Date().valueOf()
       version: version
-    ndx.database = require('ndxdb')
+    ndx.database = require 'ndxdb'
     .config config
     .start()
     express = require 'express'
     compression = require 'compression'
     bodyParser = require 'body-parser'
-    session = require 'express-session'
-    MemoryStore = require('session-memory-store') session
     cookieParser = require 'cookie-parser'
-    flash = require 'connect-flash'
     http = require 'http'
     if settings.SSL_PORT
       https = require 'https'
@@ -87,14 +84,6 @@ module.exports =
       database: ndx.database
     .use bodyParser.json()
     .use cookieParser ndx.settings.SESSION_SECRET
-    .use session
-      name: 'NDXSESSION'
-      secret: ndx.settings.SESSION_SECRET
-      saveUninitialized: true
-      resave: true
-      store: new MemoryStore
-        expires: 60
-    .use flash()
     ndx.server = http.createServer ndx.app
     if settings.SSL_PORT
       ndx.sslserver = https.createServer 
