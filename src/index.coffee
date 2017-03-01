@@ -60,6 +60,8 @@ module.exports =
     compression = require 'compression'
     bodyParser = require 'body-parser'
     cookieParser = require 'cookie-parser'
+    session = require 'express-session'
+    MemoryStore = require('session-memory-store') session
     http = require 'http'
     if settings.SSL_PORT
       https = require 'https'
@@ -80,6 +82,13 @@ module.exports =
       database: ndx.database
     .use bodyParser.json()
     .use cookieParser ndx.settings.SESSION_SECRET
+    .use session
+      name: 'NDXSESSION'
+      secret: ndx.settings.SESSION_SECRET
+      saveUninitialized: true
+      resave: true
+      store: new MemoryStore
+        expires: 5
     ndx.server = http.createServer ndx.app
     if settings.SSL_PORT
       ndx.sslserver = https.createServer 

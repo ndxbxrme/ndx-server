@@ -58,7 +58,7 @@
       return this;
     },
     start: function() {
-      var bodyParser, compression, cookieParser, ctrl, express, fs, helmet, http, https, j, k, len, len1, maintenance, ndx, useCtrl;
+      var MemoryStore, bodyParser, compression, cookieParser, ctrl, express, fs, helmet, http, https, j, k, len, len1, maintenance, ndx, session, useCtrl;
       console.log("ndx server starting");
       if (!configured) {
         this.config();
@@ -91,6 +91,8 @@
       compression = require('compression');
       bodyParser = require('body-parser');
       cookieParser = require('cookie-parser');
+      session = require('express-session');
+      MemoryStore = require('session-memory-store')(session);
       http = require('http');
       if (settings.SSL_PORT) {
         https = require('https');
@@ -106,7 +108,15 @@
       ndx.settings = settings;
       ndx.app.use(compression()).use(helmet()).use(maintenance({
         database: ndx.database
-      })).use(bodyParser.json()).use(cookieParser(ndx.settings.SESSION_SECRET));
+      })).use(bodyParser.json()).use(cookieParser(ndx.settings.SESSION_SECRET)).use(session({
+        name: 'NDXSESSION',
+        secret: ndx.settings.SESSION_SECRET,
+        saveUninitialized: true,
+        resave: true,
+        store: new MemoryStore({
+          expires: 5
+        })
+      }));
       ndx.server = http.createServer(ndx.app);
       if (settings.SSL_PORT) {
         ndx.sslserver = https.createServer({
