@@ -27,6 +27,9 @@
         keyU = underscored(key).toUpperCase();
         settings[keyU] = config[key] || settings[keyU];
       }
+      if (!settings.DB_ENGINE) {
+        settings.DB_ENGINE = require('ndxdb');
+      }
       if (settings.TABLES && settings.TABLES.length) {
         if (settings.TABLES.indexOf(settings.USER_TABLE) === -1) {
           settings.TABLES.push(settings.USER_TABLE);
@@ -86,7 +89,7 @@
         startTime: new Date().valueOf(),
         version: version
       };
-      ndx.database = require('ndxdb').config(settings).start();
+      ndx.database = settings.DB_ENGINE.config(settings).start();
       express = require('express');
       compression = require('compression');
       bodyParser = require('body-parser');

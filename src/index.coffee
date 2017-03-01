@@ -16,6 +16,8 @@ module.exports =
     for key of config
       keyU = underscored(key).toUpperCase()
       settings[keyU] = config[key] or settings[keyU]
+    if not settings.DB_ENGINE
+      settings.DB_ENGINE = require 'ndxdb'
     if settings.TABLES and settings.TABLES.length
       if settings.TABLES.indexOf(settings.USER_TABLE) is -1
         settings.TABLES.push settings.USER_TABLE
@@ -53,7 +55,7 @@ module.exports =
             dest[i] = source[i]
       startTime: new Date().valueOf()
       version: version
-    ndx.database = require 'ndxdb'
+    ndx.database = settings.DB_ENGINE
     .config settings
     .start()
     express = require 'express'
