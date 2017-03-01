@@ -8,7 +8,9 @@
     AWS_ID: process.env.AWS_ID,
     AWS_KEY: process.env.AWS_KEY,
     SESSION_SECRET: process.env.SESSION_SECRET || 'thisismysecretdontforgetit',
-    SKIP_IP_ENCRYPT: process.env.SKIP_IP_ENCRYPT
+    SKIP_IP_ENCRYPT: process.env.SKIP_IP_ENCRYPT,
+    AUTO_ID: process.env.AUTO_ID || '_id',
+    USER_TABLE: process.env.USER_TABLE || 'users'
   };
 
 }).call(this);

@@ -54,7 +54,7 @@ module.exports = (ndx) ->
           d = new Date bits[1]
           if d.toString() isnt 'Invalid Date'
             #todo - add timeout for date
-            users = ndx.database.exec 'SELECT * FROM ' + ndx.settings.USER_TABLE + ' WHERE _id=?', [bits[0]]
+            users = ndx.database.select ndx.settings.USER_TABLE, _id: bits[0]
             if users and users.length
               if not req.user
                 req.user = {}

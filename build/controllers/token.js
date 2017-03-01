@@ -74,7 +74,9 @@
           if (bits.length === 2) {
             d = new Date(bits[1]);
             if (d.toString() !== 'Invalid Date') {
-              users = ndx.database.exec('SELECT * FROM ' + ndx.settings.USER_TABLE + ' WHERE _id=?', [bits[0]]);
+              users = ndx.database.select(ndx.settings.USER_TABLE, {
+                _id: bits[0]
+              });
               if (users && users.length) {
                 if (!req.user) {
                   req.user = {};

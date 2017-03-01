@@ -1,6 +1,6 @@
 (function() {
   'use strict';
-  var ObjectID, chalk, config, controllers, middleware, settings, uselist, version;
+  var ObjectID, chalk, configured, controllers, middleware, settings, underscored, uselist, version;
 
   settings = require('./settings.js');
 
@@ -8,9 +8,11 @@
 
   chalk = require('chalk');
 
+  underscored = require('underscore.string').underscored;
+
   version = require('../package').version;
 
-  config = null;
+  configured = false;
 
   controllers = [];
 
@@ -19,24 +21,20 @@
   middleware = [];
 
   module.exports = {
-    config: function(args) {
-      config = args || {};
-      config.database = config.database || settings.DATABASE || 'db';
-      config.autoId = '_id';
-      config.awsBucket = settings.AWS_BUCKET;
-      config.awsRegion = settings.AWS_REGION || 'us-east-1';
-      config.awsId = settings.AWS_ID;
-      config.awsKey = settings.AWS_KEY;
-      config.maxSqlCacheSize = config.maxSqlCacheSize || settings.MAXSQLCACHESIZE;
-      settings.USER_TABLE = settings.USER_TABLE || config.userTable || 'users';
-      settings.publicUser = settings.PUBLIC_USER || config.publicUser;
-      if (config.tables && config.tables.length) {
-        if (config.tables.indexOf(settings.USER_TABLE) === -1) {
-          config.tables.push(settings.USER_TABLE);
+    config: function(config) {
+      var key, keyU;
+      for (key in config) {
+        keyU = underscored(key).toUpperCase();
+        settings[keyU] = config[key] || settings[keyU];
+      }
+      if (settings.TABLES && settings.TABLES.length) {
+        if (settings.TABLES.indexOf(settings.USER_TABLE) === -1) {
+          settings.TABLES.push(settings.USER_TABLE);
         }
       } else {
-        config.tables = [settings.USER_TABLE];
+        settings.TABLES = [settings.USER_TABLE];
       }
+      configured = true;
       return this;
     },
     controller: function(ctrl) {
@@ -62,7 +60,7 @@
     start: function() {
       var bodyParser, compression, cookieParser, ctrl, express, fs, helmet, http, https, j, k, len, len1, maintenance, ndx, useCtrl;
       console.log("ndx server starting");
-      if (!config) {
+      if (!configured) {
         this.config();
       }
       ndx = {
@@ -88,7 +86,7 @@
         startTime: new Date().valueOf(),
         version: version
       };
-      ndx.database = require('ndxdb').config(config).start();
+      ndx.database = require('ndxdb').config(settings).start();
       express = require('express');
       compression = require('compression');
       bodyParser = require('body-parser');
@@ -102,9 +100,9 @@
       maintenance = require('./maintenance.js');
       ndx.app = express();
       ndx["static"] = express["static"];
-      ndx.port = settings.PORT || config.port;
+      ndx.port = settings.PORT;
       ndx.ssl_port = settings.SSL_PORT;
-      ndx.host = settings.HOST || config.host;
+      ndx.host = settings.HOST;
       ndx.settings = settings;
       ndx.app.use(compression()).use(helmet()).use(maintenance({
         database: ndx.database
