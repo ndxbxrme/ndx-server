@@ -25,7 +25,7 @@
       var key, keyU;
       for (key in config) {
         keyU = underscored(key).toUpperCase();
-        settings[keyU] = config[key] || settings[keyU];
+        settings[keyU] = settings[keyU] || config[key];
       }
       if (!settings.DB_ENGINE) {
         settings.DB_ENGINE = require('ndxdb');

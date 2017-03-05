@@ -15,7 +15,7 @@ module.exports =
   config: (config) ->
     for key of config
       keyU = underscored(key).toUpperCase()
-      settings[keyU] = config[key] or settings[keyU]
+      settings[keyU] =  settings[keyU] or config[key]
     if not settings.DB_ENGINE
       settings.DB_ENGINE = require 'ndxdb'
     if settings.TABLES and settings.TABLES.length

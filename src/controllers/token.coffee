@@ -18,8 +18,9 @@ module.exports = (ndx) ->
       else
         throw ndx.UNAUTHORIZED
       return
-  ndx.generateToken = (userId, ip) ->
-    text = userId + '||' + new Date().toString()
+  ndx.generateToken = (userId, ip, expiresHours) ->
+    expiresHours = expiresHours or 5
+    text = userId + '||' + new Date().setHours(new Date().getHours() + expiresHours).toString()
     if not ndx.settings.SKIP_IP_ENCRYPT
       text = crypto.Rabbit.encrypt(text, ip).toString()
     text = crypto.Rabbit.encrypt(text, ndx.settings.SESSION_SECRET).toString()
@@ -53,16 +54,16 @@ module.exports = (ndx) ->
         if bits.length is 2
           d = new Date bits[1]
           if d.toString() isnt 'Invalid Date'
-            #todo - add timeout for date
-            users = ndx.database.select ndx.settings.USER_TABLE, _id: bits[0]
-            if users and users.length
-              if not req.user
-                req.user = {}
-              if Object.prototype.toString.call(req.user) is '[object Object]'
-                ndx.extend req.user, users[0]
-              else
-                req.user = users[0]
-              if isCookie
-                ndx.setAuthCookie req, res
-              users = null
+            if d.valueOf() > new Date().valueOf()
+              users = ndx.database.select ndx.settings.USER_TABLE, _id: bits[0]
+              if users and users.length
+                if not req.user
+                  req.user = {}
+                if Object.prototype.toString.call(req.user) is '[object Object]'
+                  ndx.extend req.user, users[0]
+                else
+                  req.user = users[0]
+                if isCookie
+                  ndx.setAuthCookie req, res
+                users = null
     next()

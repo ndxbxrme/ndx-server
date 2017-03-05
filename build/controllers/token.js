@@ -26,9 +26,10 @@
         }
       };
     };
-    ndx.generateToken = function(userId, ip) {
+    ndx.generateToken = function(userId, ip, expiresHours) {
       var text;
-      text = userId + '||' + new Date().toString();
+      expiresHours = expiresHours || 5;
+      text = userId + '||' + new Date().setHours(new Date().getHours() + expiresHours).toString();
       if (!ndx.settings.SKIP_IP_ENCRYPT) {
         text = crypto.Rabbit.encrypt(text, ip).toString();
       }
@@ -74,22 +75,24 @@
           if (bits.length === 2) {
             d = new Date(bits[1]);
             if (d.toString() !== 'Invalid Date') {
-              users = ndx.database.select(ndx.settings.USER_TABLE, {
-                _id: bits[0]
-              });
-              if (users && users.length) {
-                if (!req.user) {
-                  req.user = {};
+              if (d.valueOf() > new Date().valueOf()) {
+                users = ndx.database.select(ndx.settings.USER_TABLE, {
+                  _id: bits[0]
+                });
+                if (users && users.length) {
+                  if (!req.user) {
+                    req.user = {};
+                  }
+                  if (Object.prototype.toString.call(req.user) === '[object Object]') {
+                    ndx.extend(req.user, users[0]);
+                  } else {
+                    req.user = users[0];
+                  }
+                  if (isCookie) {
+                    ndx.setAuthCookie(req, res);
+                  }
+                  users = null;
                 }
-                if (Object.prototype.toString.call(req.user) === '[object Object]') {
-                  ndx.extend(req.user, users[0]);
-                } else {
-                  req.user = users[0];
-                }
-                if (isCookie) {
-                  ndx.setAuthCookie(req, res);
-                }
-                users = null;
               }
             }
           }
