@@ -47,7 +47,6 @@
     };
     return ndx.app.use('/api/*', function(req, res, next) {
       var bits, credentials, d, decrypted, isCookie, parts, scheme, token, users;
-      console.log('hey');
       if (!ndx.database.maintenance()) {
         isCookie = false;
         token = '';
@@ -68,9 +67,7 @@
         try {
           decrypted = crypto.Rabbit.decrypt(token, ndx.settings.SESSION_SECRET).toString(crypto.enc.Utf8);
           if (decrypted && !ndx.settings.SKIP_IP_ENCRYPT) {
-            console.log(decrypted);
             decrypted = crypto.Rabbit.decrypt(decrypted, req.ip).toString(crypto.enc.Utf8);
-            console.log(decrypted);
           }
         } catch (undefined) {}
         if (decrypted.indexOf('||') !== -1) {
@@ -78,7 +75,6 @@
           if (bits.length === 2) {
             d = new Date(bits[1]);
             if (d.toString() !== 'Invalid Date') {
-              console.log('got d', d);
               if (d.valueOf() > new Date().valueOf()) {
                 users = ndx.database.select(ndx.settings.USER_TABLE, {
                   _id: bits[0]

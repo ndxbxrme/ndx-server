@@ -31,7 +31,6 @@ module.exports = (ndx) ->
       res.cookie 'token', cookieText, maxAge: 7 * 24 * 60 * 60 * 1000  
     return
   ndx.app.use '/api/*', (req, res, next) ->
-    console.log 'hey'
     if not ndx.database.maintenance()
       isCookie = false
       token = ''
@@ -49,15 +48,12 @@ module.exports = (ndx) ->
       try
         decrypted = crypto.Rabbit.decrypt(token, ndx.settings.SESSION_SECRET).toString(crypto.enc.Utf8)
         if decrypted and not ndx.settings.SKIP_IP_ENCRYPT
-          console.log decrypted
           decrypted = crypto.Rabbit.decrypt(decrypted, req.ip).toString(crypto.enc.Utf8)
-          console.log decrypted
       if decrypted.indexOf('||') isnt -1
         bits = decrypted.split '||'
         if bits.length is 2
           d = new Date bits[1]
           if d.toString() isnt 'Invalid Date'
-            console.log 'got d', d
             if d.valueOf() > new Date().valueOf()
               users = ndx.database.select ndx.settings.USER_TABLE, _id: bits[0]
               if users and users.length
