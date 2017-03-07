@@ -46,7 +46,7 @@
       }
     };
     return ndx.app.use('/api/*', function(req, res, next) {
-      var bits, credentials, d, decrypted, isCookie, parts, scheme, token, users;
+      var bits, credentials, d, decrypted, isCookie, parts, scheme, token;
       if (!ndx.database.maintenance()) {
         isCookie = false;
         token = '';
@@ -76,23 +76,26 @@
             d = new Date(bits[1]);
             if (d.toString() !== 'Invalid Date') {
               if (d.valueOf() > new Date().valueOf()) {
-                users = ndx.database.select(ndx.settings.USER_TABLE, {
-                  _id: bits[0]
+                ndx.database.select(ndx.settings.USER_TABLE, {
+                  where: {
+                    _id: bits[0]
+                  }
+                }, function(users) {
+                  if (users && users.length) {
+                    if (!req.user) {
+                      req.user = {};
+                    }
+                    if (Object.prototype.toString.call(req.user) === '[object Object]') {
+                      ndx.extend(req.user, users[0]);
+                    } else {
+                      req.user = users[0];
+                    }
+                    if (isCookie) {
+                      ndx.setAuthCookie(req, res);
+                    }
+                    return users = null;
+                  }
                 });
-                if (users && users.length) {
-                  if (!req.user) {
-                    req.user = {};
-                  }
-                  if (Object.prototype.toString.call(req.user) === '[object Object]') {
-                    ndx.extend(req.user, users[0]);
-                  } else {
-                    req.user = users[0];
-                  }
-                  if (isCookie) {
-                    ndx.setAuthCookie(req, res);
-                  }
-                  users = null;
-                }
               }
             }
           }

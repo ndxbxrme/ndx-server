@@ -55,15 +55,18 @@ module.exports = (ndx) ->
           d = new Date bits[1]
           if d.toString() isnt 'Invalid Date'
             if d.valueOf() > new Date().valueOf()
-              users = ndx.database.select ndx.settings.USER_TABLE, _id: bits[0]
-              if users and users.length
-                if not req.user
-                  req.user = {}
-                if Object.prototype.toString.call(req.user) is '[object Object]'
-                  ndx.extend req.user, users[0]
-                else
-                  req.user = users[0]
-                if isCookie
-                  ndx.setAuthCookie req, res
-                users = null
+              ndx.database.select ndx.settings.USER_TABLE, 
+                where:
+                  _id: bits[0]
+              , (users) ->
+                if users and users.length
+                  if not req.user
+                    req.user = {}
+                  if Object.prototype.toString.call(req.user) is '[object Object]'
+                    ndx.extend req.user, users[0]
+                  else
+                    req.user = users[0]
+                  if isCookie
+                    ndx.setAuthCookie req, res
+                  users = null
     next()
