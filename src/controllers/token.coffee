@@ -27,7 +27,7 @@ module.exports = (ndx) ->
     text
   ndx.setAuthCookie = (req, res) ->
     if req.user
-      cookieText = ndx.generateToken req.user._id, req.ip
+      cookieText = ndx.generateToken req.user[ndx.settings.AUTO_ID], req.ip
       res.cookie 'token', cookieText, maxAge: 7 * 24 * 60 * 60 * 1000  
     return
   ndx.app.use '/api/*', (req, res, next) ->
@@ -47,7 +47,7 @@ module.exports = (ndx) ->
       decrypted = ''
       try
         decrypted = crypto.Rabbit.decrypt(token, ndx.settings.SESSION_SECRET).toString(crypto.enc.Utf8)
-        if decrypted and not ndx.settings.SKIP_IP_ENCRYPT
+        if decrypted and not ndx.settings.IP_ENCRYPT
           decrypted = crypto.Rabbit.decrypt(decrypted, req.ip).toString(crypto.enc.Utf8)
       if decrypted.indexOf('||') isnt -1
         bits = decrypted.split '||'
@@ -56,8 +56,8 @@ module.exports = (ndx) ->
           if d.toString() isnt 'Invalid Date'
             if d.valueOf() > new Date().valueOf()
               ndx.database.select ndx.settings.USER_TABLE, 
-                where:
-                  _id: bits[0]
+                where: {}
+                where[ndx.settings.AUTO_ID] = bits[0]
               , (users) ->
                 if users and users.length
                   if not req.user

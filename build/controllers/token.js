@@ -39,7 +39,7 @@
     ndx.setAuthCookie = function(req, res) {
       var cookieText;
       if (req.user) {
-        cookieText = ndx.generateToken(req.user._id, req.ip);
+        cookieText = ndx.generateToken(req.user[ndx.settings.AUTO_ID], req.ip);
         res.cookie('token', cookieText, {
           maxAge: 7 * 24 * 60 * 60 * 1000
         });
@@ -66,7 +66,7 @@
         decrypted = '';
         try {
           decrypted = crypto.Rabbit.decrypt(token, ndx.settings.SESSION_SECRET).toString(crypto.enc.Utf8);
-          if (decrypted && !ndx.settings.SKIP_IP_ENCRYPT) {
+          if (decrypted && !ndx.settings.IP_ENCRYPT) {
             decrypted = crypto.Rabbit.decrypt(decrypted, req.ip).toString(crypto.enc.Utf8);
           }
         } catch (undefined) {}
@@ -77,10 +77,8 @@
             if (d.toString() !== 'Invalid Date') {
               if (d.valueOf() > new Date().valueOf()) {
                 ndx.database.select(ndx.settings.USER_TABLE, {
-                  where: {
-                    _id: bits[0]
-                  }
-                }, function(users) {
+                  where: {}
+                }, where[ndx.settings.AUTO_ID] = bits[0], function(users) {
                   if (users && users.length) {
                     if (!req.user) {
                       req.user = {};
