@@ -46,7 +46,7 @@
       }
     };
     return ndx.app.use('/api/*', function(req, res, next) {
-      var bits, credentials, d, decrypted, isCookie, parts, scheme, token;
+      var bits, credentials, d, decrypted, isCookie, parts, scheme, token, where;
       if (!ndx.database.maintenance()) {
         isCookie = false;
         token = '';
@@ -76,9 +76,9 @@
             d = new Date(bits[1]);
             if (d.toString() !== 'Invalid Date') {
               if (d.valueOf() > new Date().valueOf()) {
-                ndx.database.select(ndx.settings.USER_TABLE, {
-                  where: {}
-                }, where[ndx.settings.AUTO_ID] = bits[0], function(users) {
+                where = {};
+                where[ndx.settings.AUTO_ID] = bits[0];
+                ndx.database.select(ndx.settings.USER_TABLE, where, function(users) {
                   if (users && users.length) {
                     if (!req.user) {
                       req.user = {};

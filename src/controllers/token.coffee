@@ -55,10 +55,9 @@ module.exports = (ndx) ->
           d = new Date bits[1]
           if d.toString() isnt 'Invalid Date'
             if d.valueOf() > new Date().valueOf()
-              ndx.database.select ndx.settings.USER_TABLE, 
-                where: {}
-                where[ndx.settings.AUTO_ID] = bits[0]
-              , (users) ->
+              where = {}
+              where[ndx.settings.AUTO_ID] = bits[0]
+              ndx.database.select ndx.settings.USER_TABLE, where, (users) ->
                 if users and users.length
                   if not req.user
                     req.user = {}
