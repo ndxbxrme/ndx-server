@@ -54,6 +54,7 @@ module.exports =
           if source.hasOwnProperty(i)
             dest[i] = source[i]
       startTime: new Date().valueOf()
+      transforms: {}
       version: version
     ndx.database = settings.DB_ENGINE
     .config settings

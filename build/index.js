@@ -87,6 +87,7 @@
           return results;
         },
         startTime: new Date().valueOf(),
+        transforms: {},
         version: version
       };
       ndx.database = settings.DB_ENGINE.config(settings).start();
