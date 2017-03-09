@@ -19,7 +19,7 @@
     };
     ndx.authenticate = function() {
       return function(req, res, next) {
-        if (req.user) {
+        if (ndx.user) {
           return next();
         } else {
           throw ndx.UNAUTHORIZED;
@@ -38,8 +38,8 @@
     };
     ndx.setAuthCookie = function(req, res) {
       var cookieText;
-      if (req.user) {
-        cookieText = ndx.generateToken(req.user[ndx.settings.AUTO_ID], req.ip);
+      if (ndx.user) {
+        cookieText = ndx.generateToken(ndx.user[ndx.settings.AUTO_ID], req.ip);
         res.cookie('token', cookieText, {
           maxAge: 7 * 24 * 60 * 60 * 1000
         });
@@ -80,13 +80,13 @@
                 where[ndx.settings.AUTO_ID] = bits[0];
                 ndx.database.select(ndx.settings.USER_TABLE, where, function(users) {
                   if (users && users.length) {
-                    if (!req.user) {
-                      req.user = {};
+                    if (!ndx.user) {
+                      ndx.user = {};
                     }
-                    if (Object.prototype.toString.call(req.user) === '[object Object]') {
-                      ndx.extend(req.user, users[0]);
+                    if (Object.prototype.toString.call(ndx.user) === '[object Object]') {
+                      ndx.extend(ndx.user, users[0]);
                     } else {
-                      req.user = users[0];
+                      ndx.user = users[0];
                     }
                     if (isCookie) {
                       ndx.setAuthCookie(req, res);
@@ -97,6 +97,8 @@
               }
             }
           }
+        } else {
+          console.log('decrypted', decrypted);
         }
       }
       return next();

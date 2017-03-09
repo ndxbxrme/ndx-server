@@ -13,7 +13,7 @@ module.exports = (ndx) ->
     res.redirect '/'
   ndx.authenticate = () ->
     (req, res, next) ->
-      if req.user
+      if ndx.user
         return next()
       else
         throw ndx.UNAUTHORIZED
@@ -26,8 +26,8 @@ module.exports = (ndx) ->
     text = crypto.Rabbit.encrypt(text, ndx.settings.SESSION_SECRET).toString()
     text
   ndx.setAuthCookie = (req, res) ->
-    if req.user
-      cookieText = ndx.generateToken req.user[ndx.settings.AUTO_ID], req.ip
+    if ndx.user
+      cookieText = ndx.generateToken ndx.user[ndx.settings.AUTO_ID], req.ip
       res.cookie 'token', cookieText, maxAge: 7 * 24 * 60 * 60 * 1000  
     return
   ndx.app.use '/api/*', (req, res, next) ->
@@ -59,13 +59,15 @@ module.exports = (ndx) ->
               where[ndx.settings.AUTO_ID] = bits[0]
               ndx.database.select ndx.settings.USER_TABLE, where, (users) ->
                 if users and users.length
-                  if not req.user
-                    req.user = {}
-                  if Object.prototype.toString.call(req.user) is '[object Object]'
-                    ndx.extend req.user, users[0]
+                  if not ndx.user
+                    ndx.user = {}
+                  if Object.prototype.toString.call(ndx.user) is '[object Object]'
+                    ndx.extend ndx.user, users[0]
                   else
-                    req.user = users[0]
+                    ndx.user = users[0]
                   if isCookie
                     ndx.setAuthCookie req, res
                   users = null
+      else
+        console.log 'decrypted', decrypted
     next()
