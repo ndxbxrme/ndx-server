@@ -90,7 +90,7 @@
         transforms: {},
         version: version
       };
-      ndx.database = settings.DB_ENGINE.config(settings).setNdx(ndx).start();
+      ndx.database = settings.DB_ENGINE.config(settings).start();
       express = require('express');
       compression = require('compression');
       bodyParser = require('body-parser');

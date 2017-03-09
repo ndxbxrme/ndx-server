@@ -58,7 +58,6 @@ module.exports =
       version: version
     ndx.database = settings.DB_ENGINE
     .config settings
-    .setNdx ndx
     .start()
     express = require 'express'
     compression = require 'compression'
