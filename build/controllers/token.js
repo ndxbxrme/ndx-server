@@ -93,12 +93,12 @@
                     }
                     return users = null;
                   }
-                });
+                }, true);
               }
             }
           }
         } else {
-          console.log('decrypted', decrypted);
+          false;
         }
       }
       return next();

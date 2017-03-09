@@ -68,6 +68,7 @@ module.exports = (ndx) ->
                   if isCookie
                     ndx.setAuthCookie req, res
                   users = null
+              , true
       else
-        console.log 'decrypted', decrypted
+        false
     next()
