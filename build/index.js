@@ -139,6 +139,7 @@
       require('./controllers/token')(ndx);
       if (settings.AUTO_LOAD_MODULES) {
         r = glob.sync("server/startup/**/*.js");
+        r.reverse();
         for (j = 0, len = r.length; j < len; j++) {
           module = r[j];
           require((process.cwd()) + "/" + module)(ndx);
@@ -170,6 +171,7 @@
         for (m = 0, len3 = ref.length; m < len3; m++) {
           folder = ref[m];
           r = glob.sync("server/" + folder + "/**/*.js");
+          r.reverse();
           for (n = 0, len4 = r.length; n < len4; n++) {
             module = r[n];
             require((process.cwd()) + "/" + module)(ndx);

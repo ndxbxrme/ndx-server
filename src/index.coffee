@@ -106,6 +106,7 @@ module.exports =
     require('./controllers/token') ndx
     if settings.AUTO_LOAD_MODULES
       r = glob.sync "server/startup/**/*.js"
+      r.reverse()
       for module in r
         require("#{process.cwd()}/#{module}") ndx
       modulesToLoad = []
@@ -125,6 +126,7 @@ module.exports =
         require("../../#{module.name}") ndx
       for folder in ['services', 'controllers']
         r = glob.sync "server/#{folder}/**/*.js"
+        r.reverse()
         for module in r
           require("#{process.cwd()}/#{module}") ndx
     for useCtrl in uselist
