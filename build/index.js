@@ -1,6 +1,6 @@
 (function() {
   'use strict';
-  var ObjectID, chalk, configured, controllers, middleware, settings, underscored, uselist, version;
+  var ObjectID, chalk, configured, controllers, glob, middleware, pack, settings, underscored, uselist, version;
 
   settings = require('./settings.js');
 
@@ -10,7 +10,11 @@
 
   underscored = require('underscore.string').underscored;
 
-  version = require('../package').version;
+  glob = require('glob');
+
+  pack = require('../package');
+
+  version = pack.version;
 
   configured = false;
 
@@ -25,7 +29,11 @@
       var key, keyU;
       for (key in config) {
         keyU = underscored(key).toUpperCase();
-        settings[keyU] = settings[keyU] || config[key];
+        if (Object.prototype.toString.call(config[key]) === '[object Boolean]') {
+          settings[keyU] = config[key];
+        } else {
+          settings[keyU] = settings[keyU] || config[key];
+        }
       }
       if (!settings.DB_ENGINE) {
         settings.DB_ENGINE = require('ndxdb');
@@ -61,7 +69,7 @@
       return this;
     },
     start: function() {
-      var MemoryStore, bodyParser, compression, cookieParser, ctrl, express, fs, helmet, http, https, j, k, len, len1, maintenance, ndx, session, useCtrl;
+      var MemoryStore, bodyParser, compression, cookieParser, ctrl, express, folder, fs, helmet, http, https, j, k, l, len, len1, len2, len3, len4, len5, len6, m, maintenance, module, moduleName, modulePackage, modulesToLoad, n, ndx, o, p, r, ref, session, useCtrl;
       console.log("ndx server starting");
       if (!configured) {
         this.config();
@@ -129,12 +137,51 @@
         }, ndx.app);
       }
       require('./controllers/token')(ndx);
-      for (j = 0, len = uselist.length; j < len; j++) {
-        useCtrl = uselist[j];
+      if (settings.AUTO_LOAD_MODULES) {
+        r = glob.sync("server/startup/**/*.js");
+        for (j = 0, len = r.length; j < len; j++) {
+          module = r[j];
+          require((process.cwd()) + "/" + module)(ndx);
+        }
+        modulesToLoad = [];
+        r = glob.sync('node_modules/*');
+        for (k = 0, len1 = r.length; k < len1; k++) {
+          module = r[k];
+          moduleName = module.replace('node_modules/', '');
+          modulePackage = require("../../" + moduleName + "/package.json");
+          if (moduleName.indexOf('ndx-') === 0 || modulePackage.ndx) {
+            if (moduleName !== 'ndx-server') {
+              modulesToLoad.push({
+                name: moduleName,
+                loadOrder: modulePackage.loadOrder || 5
+              });
+            }
+          }
+          modulePackage = null;
+        }
+        modulesToLoad.sort(function(a, b) {
+          return a.loadOrder - b.loadOrder;
+        });
+        for (l = 0, len2 = modulesToLoad.length; l < len2; l++) {
+          module = modulesToLoad[l];
+          require("../../" + module.name)(ndx);
+        }
+        ref = ['services', 'controllers'];
+        for (m = 0, len3 = ref.length; m < len3; m++) {
+          folder = ref[m];
+          r = glob.sync("server/" + folder + "/**/*.js");
+          for (n = 0, len4 = r.length; n < len4; n++) {
+            module = r[n];
+            require((process.cwd()) + "/" + module)(ndx);
+          }
+        }
+      }
+      for (o = 0, len5 = uselist.length; o < len5; o++) {
+        useCtrl = uselist[o];
         useCtrl(ndx);
       }
-      for (k = 0, len1 = controllers.length; k < len1; k++) {
-        ctrl = controllers[k];
+      for (p = 0, len6 = controllers.length; p < len6; p++) {
+        ctrl = controllers[p];
         ctrl(ndx);
       }
       ndx.UNAUTHORIZED = {

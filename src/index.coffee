@@ -4,8 +4,9 @@ ObjectID = require 'bson-objectid'
 chalk = require 'chalk'
 underscored = require 'underscore.string'
 .underscored
-version = require '../package'
-.version
+glob = require 'glob'
+pack = require '../package'
+version = pack.version
 
 configured = false
 controllers = []
@@ -15,7 +16,10 @@ module.exports =
   config: (config) ->
     for key of config
       keyU = underscored(key).toUpperCase()
-      settings[keyU] =  settings[keyU] or config[key]
+      if Object.prototype.toString.call(config[key]) is '[object Boolean]'
+        settings[keyU] = config[key]
+      else
+        settings[keyU] =  settings[keyU] or config[key]
     if not settings.DB_ENGINE
       settings.DB_ENGINE = require 'ndxdb'
     if settings.TABLES and settings.TABLES.length
@@ -100,6 +104,29 @@ module.exports =
       , ndx.app
     
     require('./controllers/token') ndx
+    if settings.AUTO_LOAD_MODULES
+      r = glob.sync "server/startup/**/*.js"
+      for module in r
+        require("#{process.cwd()}/#{module}") ndx
+      modulesToLoad = []
+      r = glob.sync 'node_modules/*'
+      for module in r
+        moduleName = module.replace('node_modules/', '')
+        modulePackage = require("../../#{moduleName}/package.json")
+        if moduleName.indexOf('ndx-') is 0 or modulePackage.ndx
+          if moduleName isnt 'ndx-server'
+            modulesToLoad.push
+              name: moduleName
+              loadOrder: modulePackage.loadOrder or 5
+        modulePackage = null
+      modulesToLoad.sort (a, b) ->
+        a.loadOrder - b.loadOrder
+      for module in modulesToLoad
+        require("../../#{module.name}") ndx
+      for folder in ['services', 'controllers']
+        r = glob.sync "server/#{folder}/**/*.js"
+        for module in r
+          require("#{process.cwd()}/#{module}") ndx
     for useCtrl in uselist
       useCtrl ndx
     for ctrl in controllers

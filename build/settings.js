@@ -10,7 +10,8 @@
     SESSION_SECRET: process.env.SESSION_SECRET || 'thisismysecretdontforgetit',
     IP_ENCRYPT: process.env.IP_ENCRYPT,
     AUTO_ID: process.env.AUTO_ID || '_id',
-    USER_TABLE: process.env.USER_TABLE || 'users'
+    USER_TABLE: process.env.USER_TABLE || 'users',
+    AUTO_LOAD_MODULES: true
   };
 
 }).call(this);

@@ -11,3 +11,4 @@ module.exports =
   IP_ENCRYPT: process.env.IP_ENCRYPT
   AUTO_ID: process.env.AUTO_ID or '_id'
   USER_TABLE: process.env.USER_TABLE or 'users'
+  AUTO_LOAD_MODULES: true
