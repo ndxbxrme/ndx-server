@@ -149,7 +149,7 @@
         for (k = 0, len1 = r.length; k < len1; k++) {
           module = r[k];
           moduleName = module.replace('node_modules/', '');
-          modulePackage = require("../../" + moduleName + "/package.json");
+          modulePackage = require((process.cwd()) + "/node_modules/" + moduleName + "/package.json");
           if (moduleName.indexOf('ndx-') === 0 || modulePackage.ndx) {
             if (moduleName !== 'ndx-server') {
               modulesToLoad.push({
