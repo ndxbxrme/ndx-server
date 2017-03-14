@@ -7,6 +7,11 @@
   bcrypt = require('bcrypt-nodejs');
 
   module.exports = function(ndx) {
+    var publicRoutes;
+    publicRoutes = ['/api/login', '/api/signup'];
+    ndx.addPublicRoute = function(route) {
+      return publicRoutes.push(route);
+    };
     ndx.generateHash = function(password) {
       return bcrypt.hashSync(password, bcrypt.genSaltSync(8), null);
     };
@@ -14,7 +19,6 @@
       return bcrypt.compareSync(password, localPassword);
     };
     ndx.postAuthenticate = function(req, res, next) {
-      console.log('req', req.user);
       ndx.setAuthCookie(req, res);
       return res.redirect('/');
     };
@@ -47,7 +51,13 @@
       }
     };
     return ndx.app.use('/api/*', function(req, res, next) {
-      var bits, credentials, d, decrypted, e, error, isCookie, parts, scheme, token, where;
+      var bits, credentials, d, decrypted, e, error, i, isCookie, len, parts, route, scheme, token, where;
+      for (i = 0, len = publicRoutes.length; i < len; i++) {
+        route = publicRoutes[i];
+        if (new RegExp(route).test(req.originalUrl)) {
+          return next();
+        }
+      }
       ndx.user = null;
       if (!ndx.database.maintenance()) {
         isCookie = false;

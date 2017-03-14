@@ -4,12 +4,14 @@ crypto = require 'crypto-js'
 bcrypt = require 'bcrypt-nodejs'
 
 module.exports = (ndx) ->
+  publicRoutes = ['/api/login', '/api/signup']
+  ndx.addPublicRoute = (route) ->
+    publicRoutes.push route
   ndx.generateHash = (password) ->
     bcrypt.hashSync password, bcrypt.genSaltSync(8), null
   ndx.validPassword = (password, localPassword) ->
     bcrypt.compareSync password, localPassword
   ndx.postAuthenticate = (req, res, next) ->
-    console.log 'req', req.user
     ndx.setAuthCookie req, res
     res.redirect '/'
   ndx.authenticate = () ->
@@ -32,6 +34,9 @@ module.exports = (ndx) ->
       res.cookie 'token', cookieText, maxAge: 7 * 24 * 60 * 60 * 1000  
     return
   ndx.app.use '/api/*', (req, res, next) ->
+    for route in publicRoutes
+      if new RegExp(route).test req.originalUrl
+        return next()
     ndx.user = null
     if not ndx.database.maintenance()
       isCookie = false
