@@ -14,6 +14,7 @@
       return bcrypt.compareSync(password, localPassword);
     };
     ndx.postAuthenticate = function(req, res, next) {
+      console.log('req', req.user);
       ndx.setAuthCookie(req, res);
       return res.redirect('/');
     };
@@ -30,7 +31,7 @@
       var text;
       expiresHours = expiresHours || 5;
       text = userId + '||' + new Date(new Date().setHours(new Date().getHours() + expiresHours)).toString();
-      if (!ndx.settings.SKIP_IP_ENCRYPT) {
+      if (ndx.settings.IP_ENCRYPT) {
         text = crypto.Rabbit.encrypt(text, ip).toString();
       }
       text = crypto.Rabbit.encrypt(text, ndx.settings.SESSION_SECRET).toString();
@@ -46,7 +47,8 @@
       }
     };
     return ndx.app.use('/api/*', function(req, res, next) {
-      var bits, credentials, d, decrypted, isCookie, parts, scheme, token, where;
+      var bits, credentials, d, decrypted, e, error, isCookie, parts, scheme, token, where;
+      ndx.user = null;
       if (!ndx.database.maintenance()) {
         isCookie = false;
         token = '';
@@ -66,10 +68,12 @@
         decrypted = '';
         try {
           decrypted = crypto.Rabbit.decrypt(token, ndx.settings.SESSION_SECRET).toString(crypto.enc.Utf8);
-          if (decrypted && !ndx.settings.IP_ENCRYPT) {
+          if (decrypted && ndx.settings.IP_ENCRYPT) {
             decrypted = crypto.Rabbit.decrypt(decrypted, req.ip).toString(crypto.enc.Utf8);
           }
-        } catch (undefined) {}
+        } catch (error) {
+          e = error;
+        }
         if (decrypted.indexOf('||') !== -1) {
           bits = decrypted.split('||');
           if (bits.length === 2) {
@@ -78,7 +82,7 @@
               if (d.valueOf() > new Date().valueOf()) {
                 where = {};
                 where[ndx.settings.AUTO_ID] = bits[0];
-                ndx.database.select(ndx.settings.USER_TABLE, where, function(users) {
+                return ndx.database.select(ndx.settings.USER_TABLE, where, function(users) {
                   if (users && users.length) {
                     if (!ndx.user) {
                       ndx.user = {};
@@ -91,17 +95,23 @@
                     if (isCookie) {
                       ndx.setAuthCookie(req, res);
                     }
-                    return users = null;
+                    users = null;
                   }
+                  return next();
                 }, true);
+              } else {
+                throw ndx.UNAUTHORIZED;
               }
+            } else {
+              throw ndx.UNAUTHORIZED;
             }
+          } else {
+            throw ndx.UNAUTHORIZED;
           }
         } else {
-          false;
+          throw ndx.UNAUTHORIZED;
         }
       }
-      return next();
     });
   };
 

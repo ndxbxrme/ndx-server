@@ -9,6 +9,7 @@ module.exports = (ndx) ->
   ndx.validPassword = (password, localPassword) ->
     bcrypt.compareSync password, localPassword
   ndx.postAuthenticate = (req, res, next) ->
+    console.log 'req', req.user
     ndx.setAuthCookie req, res
     res.redirect '/'
   ndx.authenticate = () ->
@@ -21,7 +22,7 @@ module.exports = (ndx) ->
   ndx.generateToken = (userId, ip, expiresHours) ->
     expiresHours = expiresHours or 5
     text = userId + '||' + new Date(new Date().setHours(new Date().getHours() + expiresHours)).toString()
-    if not ndx.settings.SKIP_IP_ENCRYPT
+    if ndx.settings.IP_ENCRYPT
       text = crypto.Rabbit.encrypt(text, ip).toString()
     text = crypto.Rabbit.encrypt(text, ndx.settings.SESSION_SECRET).toString()
     text
@@ -31,6 +32,7 @@ module.exports = (ndx) ->
       res.cookie 'token', cookieText, maxAge: 7 * 24 * 60 * 60 * 1000  
     return
   ndx.app.use '/api/*', (req, res, next) ->
+    ndx.user = null
     if not ndx.database.maintenance()
       isCookie = false
       token = ''
@@ -47,8 +49,9 @@ module.exports = (ndx) ->
       decrypted = ''
       try
         decrypted = crypto.Rabbit.decrypt(token, ndx.settings.SESSION_SECRET).toString(crypto.enc.Utf8)
-        if decrypted and not ndx.settings.IP_ENCRYPT
+        if decrypted and ndx.settings.IP_ENCRYPT
           decrypted = crypto.Rabbit.decrypt(decrypted, req.ip).toString(crypto.enc.Utf8)
+      catch e
       if decrypted.indexOf('||') isnt -1
         bits = decrypted.split '||'
         if bits.length is 2
@@ -68,7 +71,13 @@ module.exports = (ndx) ->
                   if isCookie
                     ndx.setAuthCookie req, res
                   users = null
+                next()
               , true
+            else
+              throw ndx.UNAUTHORIZED
+          else
+            throw ndx.UNAUTHORIZED
+        else
+          throw ndx.UNAUTHORIZED
       else
-        false
-    next()
+        throw ndx.UNAUTHORIZED
