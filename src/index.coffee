@@ -118,16 +118,18 @@ module.exports =
           if moduleName isnt 'ndx-server'
             modulesToLoad.push
               name: moduleName
-              loadOrder: modulePackage.loadOrder or 5
+              loadOrder: if Object.prototype.toString.call(modulePackage.loadOrder) is '[object Number]' then modulePackage.loadOrder else 5
         modulePackage = null
       modulesToLoad.sort (a, b) ->
         a.loadOrder - b.loadOrder
       for module in modulesToLoad
+        #console.log "loading #{module.name}"
         require("../../#{module.name}") ndx
       for folder in ['services', 'controllers']
         r = glob.sync "server/#{folder}/**/*.js"
         r.reverse()
         for module in r
+          #console.log "loading #{module}"
           require("#{process.cwd()}/#{module}") ndx
     for useCtrl in uselist
       useCtrl ndx

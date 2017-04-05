@@ -154,7 +154,7 @@
             if (moduleName !== 'ndx-server') {
               modulesToLoad.push({
                 name: moduleName,
-                loadOrder: modulePackage.loadOrder || 5
+                loadOrder: Object.prototype.toString.call(modulePackage.loadOrder) === '[object Number]' ? modulePackage.loadOrder : 5
               });
             }
           }
