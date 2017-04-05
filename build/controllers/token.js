@@ -52,6 +52,9 @@
     };
     return ndx.app.use('/api/*', function(req, res, next) {
       var bits, credentials, d, decrypted, e, error, i, isCookie, len, parts, route, scheme, token, where;
+      if (req.method === 'OPTIONS') {
+        return next();
+      }
       for (i = 0, len = publicRoutes.length; i < len; i++) {
         route = publicRoutes[i];
         if (new RegExp(route).test(req.originalUrl)) {

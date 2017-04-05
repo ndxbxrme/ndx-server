@@ -34,6 +34,8 @@ module.exports = (ndx) ->
       res.cookie 'token', cookieText, maxAge: 7 * 24 * 60 * 60 * 1000  
     return
   ndx.app.use '/api/*', (req, res, next) ->
+    if req.method is 'OPTIONS'
+      return next()
     for route in publicRoutes
       if new RegExp(route).test req.originalUrl
         return next()
