@@ -31,15 +31,46 @@
         }
       };
     };
-    ndx.generateToken = function(userId, ip, expiresHours) {
+    ndx.generateToken = function(userId, ip, expiresHours, skipIp) {
       var text;
       expiresHours = expiresHours || 5;
       text = userId + '||' + new Date(new Date().setHours(new Date().getHours() + expiresHours)).toString();
-      if (ndx.settings.IP_ENCRYPT) {
+      if (ndx.settings.IP_ENCRYPT && !skipIp) {
         text = crypto.Rabbit.encrypt(text, ip).toString();
       }
       text = crypto.Rabbit.encrypt(text, ndx.settings.SESSION_SECRET).toString();
       return text;
+    };
+    ndx.parseToken = function(token, skipIp) {
+      var bits, d, decrypted, e, error;
+      decrypted = '';
+      try {
+        decrypted = crypto.Rabbit.decrypt(token, ndx.settings.SESSION_SECRET).toString(crypto.enc.Utf8);
+        if (decrypted && ndx.settings.IP_ENCRYPT && !skipIp) {
+          decrypted = crypto.Rabbit.decrypt(decrypted, req.ip).toString(crypto.enc.Utf8);
+        }
+      } catch (error) {
+        e = error;
+      }
+      if (decrypted.indexOf('||') !== -1) {
+        bits = decrypted.split('||');
+        if (bits.length === 2) {
+          d = new Date(bits[1]);
+          if (d.toString() !== 'Invalid Date') {
+            if (d.valueOf() > new Date().valueOf()) {
+              return bits[0];
+            } else {
+              throw ndx.UNAUTHORIZED;
+            }
+          } else {
+            throw ndx.UNAUTHORIZED;
+          }
+        } else {
+          throw ndx.UNAUTHORIZED;
+        }
+      } else {
+        throw ndx.UNAUTHORIZED;
+      }
     };
     ndx.setAuthCookie = function(req, res) {
       var cookieText;
@@ -51,7 +82,7 @@
       }
     };
     return ndx.app.use('/api/*', function(req, res, next) {
-      var bits, credentials, d, decrypted, e, error, i, isCookie, len, parts, route, scheme, token, where;
+      var credentials, i, isCookie, len, parts, route, scheme, token, userId, where;
       if (req.method === 'OPTIONS') {
         return next();
       }
@@ -78,52 +109,26 @@
             }
           }
         }
-        decrypted = '';
-        try {
-          decrypted = crypto.Rabbit.decrypt(token, ndx.settings.SESSION_SECRET).toString(crypto.enc.Utf8);
-          if (decrypted && ndx.settings.IP_ENCRYPT) {
-            decrypted = crypto.Rabbit.decrypt(decrypted, req.ip).toString(crypto.enc.Utf8);
-          }
-        } catch (error) {
-          e = error;
-        }
-        if (decrypted.indexOf('||') !== -1) {
-          bits = decrypted.split('||');
-          if (bits.length === 2) {
-            d = new Date(bits[1]);
-            if (d.toString() !== 'Invalid Date') {
-              if (d.valueOf() > new Date().valueOf()) {
-                where = {};
-                where[ndx.settings.AUTO_ID] = bits[0];
-                return ndx.database.select(ndx.settings.USER_TABLE, where, function(users) {
-                  if (users && users.length) {
-                    if (!ndx.user) {
-                      ndx.user = {};
-                    }
-                    if (Object.prototype.toString.call(ndx.user) === '[object Object]') {
-                      ndx.extend(ndx.user, users[0]);
-                    } else {
-                      ndx.user = users[0];
-                    }
-                    if (isCookie) {
-                      ndx.setAuthCookie(req, res);
-                    }
-                    users = null;
-                  }
-                  return next();
-                }, true);
-              } else {
-                throw ndx.UNAUTHORIZED;
-              }
-            } else {
-              throw ndx.UNAUTHORIZED;
+        userId = ndx.parseToken(token);
+        where = {};
+        where[ndx.settings.AUTO_ID] = userId;
+        return ndx.database.select(ndx.settings.USER_TABLE, where, function(users) {
+          if (users && users.length) {
+            if (!ndx.user) {
+              ndx.user = {};
             }
-          } else {
-            throw ndx.UNAUTHORIZED;
+            if (Object.prototype.toString.call(ndx.user) === '[object Object]') {
+              ndx.extend(ndx.user, users[0]);
+            } else {
+              ndx.user = users[0];
+            }
+            if (isCookie) {
+              ndx.setAuthCookie(req, res);
+            }
+            users = null;
           }
-        } else {
-          throw ndx.UNAUTHORIZED;
-        }
+          return next();
+        }, true);
       }
     });
   };

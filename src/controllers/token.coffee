@@ -21,13 +21,35 @@ module.exports = (ndx) ->
       else
         throw ndx.UNAUTHORIZED
       return
-  ndx.generateToken = (userId, ip, expiresHours) ->
+  ndx.generateToken = (userId, ip, expiresHours, skipIp) ->
     expiresHours = expiresHours or 5
     text = userId + '||' + new Date(new Date().setHours(new Date().getHours() + expiresHours)).toString()
-    if ndx.settings.IP_ENCRYPT
+    if ndx.settings.IP_ENCRYPT and not skipIp
       text = crypto.Rabbit.encrypt(text, ip).toString()
     text = crypto.Rabbit.encrypt(text, ndx.settings.SESSION_SECRET).toString()
     text
+  ndx.parseToken = (token, skipIp) ->
+    decrypted = ''
+    try
+      decrypted = crypto.Rabbit.decrypt(token, ndx.settings.SESSION_SECRET).toString(crypto.enc.Utf8)
+      if decrypted and ndx.settings.IP_ENCRYPT and not skipIp
+        decrypted = crypto.Rabbit.decrypt(decrypted, req.ip).toString(crypto.enc.Utf8)
+    catch e
+    if decrypted.indexOf('||') isnt -1
+      bits = decrypted.split '||'
+      if bits.length is 2
+        d = new Date bits[1]
+        if d.toString() isnt 'Invalid Date'
+          if d.valueOf() > new Date().valueOf()
+            return bits[0]
+          else
+            throw ndx.UNAUTHORIZED
+        else
+          throw ndx.UNAUTHORIZED
+      else
+        throw ndx.UNAUTHORIZED
+    else
+      throw ndx.UNAUTHORIZED
   ndx.setAuthCookie = (req, res) ->
     if ndx.user
       cookieText = ndx.generateToken ndx.user[ndx.settings.AUTO_ID], req.ip
@@ -53,38 +75,19 @@ module.exports = (ndx) ->
           credentials = parts[1]
           if /^Bearer$/i.test scheme
             token = credentials
-      decrypted = ''
-      try
-        decrypted = crypto.Rabbit.decrypt(token, ndx.settings.SESSION_SECRET).toString(crypto.enc.Utf8)
-        if decrypted and ndx.settings.IP_ENCRYPT
-          decrypted = crypto.Rabbit.decrypt(decrypted, req.ip).toString(crypto.enc.Utf8)
-      catch e
-      if decrypted.indexOf('||') isnt -1
-        bits = decrypted.split '||'
-        if bits.length is 2
-          d = new Date bits[1]
-          if d.toString() isnt 'Invalid Date'
-            if d.valueOf() > new Date().valueOf()
-              where = {}
-              where[ndx.settings.AUTO_ID] = bits[0]
-              ndx.database.select ndx.settings.USER_TABLE, where, (users) ->
-                if users and users.length
-                  if not ndx.user
-                    ndx.user = {}
-                  if Object.prototype.toString.call(ndx.user) is '[object Object]'
-                    ndx.extend ndx.user, users[0]
-                  else
-                    ndx.user = users[0]
-                  if isCookie
-                    ndx.setAuthCookie req, res
-                  users = null
-                next()
-              , true
-            else
-              throw ndx.UNAUTHORIZED
+      userId = ndx.parseToken token
+      where = {}
+      where[ndx.settings.AUTO_ID] = userId
+      ndx.database.select ndx.settings.USER_TABLE, where, (users) ->
+        if users and users.length
+          if not ndx.user
+            ndx.user = {}
+          if Object.prototype.toString.call(ndx.user) is '[object Object]'
+            ndx.extend ndx.user, users[0]
           else
-            throw ndx.UNAUTHORIZED
-        else
-          throw ndx.UNAUTHORIZED
-      else
-        throw ndx.UNAUTHORIZED
+            ndx.user = users[0]
+          if isCookie
+            ndx.setAuthCookie req, res
+          users = null
+        next()
+      , true
