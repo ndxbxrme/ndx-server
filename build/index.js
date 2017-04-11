@@ -87,7 +87,11 @@
           results = [];
           for (i in source) {
             if (source.hasOwnProperty(i)) {
-              results.push(dest[i] = source[i]);
+              if (dest.hasOwnProperty(i) && Object.prototype.toString.call(dest[i]) === '[object Object]') {
+                results.push(this.extend(dest[i], source[i]));
+              } else {
+                results.push(dest[i] = source[i]);
+              }
             } else {
               results.push(void 0);
             }

@@ -56,7 +56,10 @@ module.exports =
           source = {}
         for i of source
           if source.hasOwnProperty(i)
-            dest[i] = source[i]
+            if dest.hasOwnProperty(i) and Object.prototype.toString.call(dest[i]) is '[object Object]'
+              @extend dest[i], source[i]
+            else
+              dest[i] = source[i]
       startTime: new Date().valueOf()
       transforms: {}
       version: version
