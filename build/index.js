@@ -76,6 +76,9 @@
       }
       ndx = {
         id: ObjectID.generate(),
+        generateID: function() {
+          return ObjectID.generate();
+        },
         extend: function(dest, source) {
           var i, results;
           if (!dest) {

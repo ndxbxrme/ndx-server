@@ -49,6 +49,8 @@ module.exports =
       @config()
     ndx =
       id: ObjectID.generate()
+      generateID: ->
+        ObjectID.generate()
       extend: (dest, source) ->
         if not dest
           dest = {}
