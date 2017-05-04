@@ -8,7 +8,7 @@
 
   module.exports = function(ndx) {
     var publicRoutes;
-    publicRoutes = ['/api/login', '/api/signup', '/api/refresh-login'];
+    publicRoutes = ['/api/login', '/api/signup'];
     ndx.addPublicRoute = function(route) {
       return publicRoutes.push(route);
     };
@@ -69,7 +69,10 @@
           throw ndx.UNAUTHORIZED;
         }
       } else {
-        throw ndx.UNAUTHORIZED;
+        throw {
+          status: 200,
+          message: ''
+        };
       }
     };
     ndx.setAuthCookie = function(req, res) {

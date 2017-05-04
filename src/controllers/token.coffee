@@ -4,7 +4,7 @@ crypto = require 'crypto-js'
 bcrypt = require 'bcrypt-nodejs'
 
 module.exports = (ndx) ->
-  publicRoutes = ['/api/login', '/api/signup', '/api/refresh-login']
+  publicRoutes = ['/api/login', '/api/signup']
   ndx.addPublicRoute = (route) ->
     publicRoutes.push route
   ndx.generateHash = (password) ->
@@ -49,7 +49,9 @@ module.exports = (ndx) ->
       else
         throw ndx.UNAUTHORIZED
     else
-      throw ndx.UNAUTHORIZED
+      throw
+        status: 200
+        message: ''
   ndx.setAuthCookie = (req, res) ->
     if ndx.user
       cookieText = ndx.generateToken ndx.user[ndx.settings.AUTO_ID], req.ip
