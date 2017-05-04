@@ -49,6 +49,7 @@ module.exports = (ndx) ->
       else
         throw ndx.UNAUTHORIZED
     else
+      ndx.user = null
       throw
         status: 200
         message: ''
