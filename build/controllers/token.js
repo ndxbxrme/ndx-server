@@ -83,6 +83,7 @@
     };
     return ndx.app.use('/api/*', function(req, res, next) {
       var credentials, i, isCookie, len, parts, route, scheme, token, userId, where;
+      ndx.user = null;
       if (req.method === 'OPTIONS') {
         return next();
       }
@@ -92,7 +93,6 @@
           return next();
         }
       }
-      ndx.user = null;
       if (!ndx.database.maintenance()) {
         isCookie = false;
         token = '';
