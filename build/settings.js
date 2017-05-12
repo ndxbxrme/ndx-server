@@ -11,7 +11,11 @@
     IP_ENCRYPT: process.env.IP_ENCRYPT,
     AUTO_ID: process.env.AUTO_ID || '_id',
     USER_TABLE: process.env.USER_TABLE || 'users',
-    AUTO_LOAD_MODULES: true
+    AUTO_LOAD_MODULES: true,
+    DO_NOT_LOG: process.env.DO_NOT_LOG,
+    LOG_TO_SCREEN: process.env.LOG_TO_SCREEN,
+    LOG_DIR: process.env.LOG_DIR || 'logs',
+    LOG_LEVEL: process.env.LOG_LEVEL || 'short'
   };
 
 }).call(this);

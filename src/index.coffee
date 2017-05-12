@@ -1,12 +1,12 @@
 'use strict'
 settings = require './settings.js'
-ObjectID = require 'bson-objectid'
 chalk = require 'chalk'
 underscored = require 'underscore.string'
 .underscored
 glob = require 'glob'
-pack = require '../package'
-version = pack.version
+fs = require 'fs'
+rfs = require 'rotating-file-stream'
+
 
 configured = false
 controllers = []
@@ -47,24 +47,7 @@ module.exports =
     console.log "ndx server starting"
     if not configured
       @config()
-    ndx =
-      id: ObjectID.generate()
-      generateID: ->
-        ObjectID.generate()
-      extend: (dest, source) ->
-        if not dest
-          dest = {}
-        if not source
-          source = {}
-        for i of source
-          if source.hasOwnProperty(i)
-            if dest.hasOwnProperty(i) and Object.prototype.toString.call(dest[i]) is '[object Object]'
-              @extend dest[i], source[i]
-            else
-              dest[i] = source[i]
-      startTime: new Date().valueOf()
-      transforms: {}
-      version: version
+    ndx = require './services/ndx'
     ndx.database = settings.DB_ENGINE
     .config settings
     .setNdx ndx
@@ -78,9 +61,8 @@ module.exports =
     http = require 'http'
     if settings.SSL_PORT
       https = require 'https'
-      fs = require 'fs'
     helmet = require 'helmet'
-    #morgan = require 'morgan'
+    morgan = require 'morgan'
     maintenance = require './maintenance.js'
     ndx.app = express()
     ndx.static = express.static
@@ -90,8 +72,17 @@ module.exports =
     ndx.settings = settings
     ndx.app.use compression()
     .use helmet()
-    #.use morgan 'tiny'
-    .use maintenance
+    if not ndx.settings.DO_NOT_LOG
+      if ndx.settings.LOG_TO_SCREEN
+        ndx.app.use morgan ndx.settings.LOG_LEVEL
+      else
+        fs.existsSync(ndx.settings.LOG_DIR) or fs.mkdirSync(ndx.settings.LOG_DIR)
+        accessLogStream = rfs 'access.log',
+          interval: '1d'
+          path: ndx.settings.LOG_DIR
+        ndx.app.use morgan ndx.settings.LOG_LEVEL,
+          stream: accessLogStream
+    ndx.app.use maintenance
       database: ndx.database
     .use bodyParser.json()
     .use cookieParser ndx.settings.SESSION_SECRET
@@ -153,10 +144,10 @@ module.exports =
 
 
     ndx.server.listen ndx.port, ->
-      console.log chalk.yellow "ndx server v#{chalk.cyan.bold(version)} listening on #{chalk.cyan.bold(ndx.port)}"
+      console.log chalk.yellow "ndx server v#{chalk.cyan.bold(ndx.version)} listening on #{chalk.cyan.bold(ndx.port)}"
     if settings.SSL_PORT
       ndx.sslserver.listen ndx.ssl_port, ->
-        console.log chalk.yellow "ndx ssl server v#{chalk.cyan.bold(version)} listening on #{chalk.cyan.bold(ndx.ssl_port)}"
+        console.log chalk.yellow "ndx ssl server v#{chalk.cyan.bold(ndx.version)} listening on #{chalk.cyan.bold(ndx.ssl_port)}"
       
     if global.gc
       setInterval ->
