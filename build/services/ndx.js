@@ -14,26 +14,26 @@
       return ObjectID.generate();
     },
     extend: function(dest, source) {
-      var i, results1;
+      var i, results;
       if (!dest) {
         dest = {};
       }
       if (!source) {
         source = {};
       }
-      results1 = [];
+      results = [];
       for (i in source) {
         if (source.hasOwnProperty(i)) {
           if (dest.hasOwnProperty(i) && Object.prototype.toString.call(dest[i]) === '[object Object]') {
-            results1.push(this.extend(dest[i], source[i]));
+            results.push(this.extend(dest[i], source[i]));
           } else {
-            results1.push(dest[i] = source[i]);
+            results.push(dest[i] = source[i]);
           }
         } else {
-          results1.push(void 0);
+          results.push(void 0);
         }
       }
-      return results1;
+      return results;
     },
     fillTemplate: function(template, data) {
       return template.replace(/\{\{(.+?)\}\}/g, function(all, match) {
@@ -42,19 +42,6 @@
           return (new Function("with(this) {return " + str + "}")).call(context);
         };
         return evalInContext(match, data);
-      });
-    },
-    makeSlug: function(table, template, data, cb) {
-      var slug;
-      slug = s(this.fillTemplate(template, data)).prune(30, '').slugify().value();
-      return this.database.select(table, {
-        slug: slug
-      }, function(results) {
-        if (results.length) {
-          slug = slug + Math.floor(Math.random() * 9999);
-        }
-        data.slug = slug;
-        return typeof cb === "function" ? cb() : void 0;
       });
     },
     startTime: new Date().valueOf(),

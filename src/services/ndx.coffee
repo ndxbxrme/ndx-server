@@ -24,15 +24,6 @@ module.exports =
         (new Function("with(this) {return #{str}}"))
         .call context
       evalInContext match, data
-  makeSlug: (table, template, data, cb) ->
-    slug = s(@fillTemplate(template, data)).prune(30, '').slugify().value()
-    @database.select table,
-      slug: slug
-    , (results) ->
-      if results.length
-        slug = slug + Math.floor(Math.random() * 9999)
-      data.slug = slug
-      cb?()
   startTime: new Date().valueOf()
   transforms: {}
   version: version
