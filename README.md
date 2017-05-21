@@ -68,6 +68,8 @@ ndx.use(require('./services/my-service'));
 ndx.use('npm-module');
 ```
 
+### `all modules from the folders /startup, /services and /controllers now get auto-loaded so you no longer need to reference them`
+
 #### `ndx.start()`
 
 Start the server
@@ -95,6 +97,8 @@ The `ndx` object gets passed to each controller and service
 - `ndx.setAuthCookie(req, res)` used internally
 
 other modules can add extra properties and methods to the `ndx` object, eg `ndx-passport` which adds `ndx.passport` for the other passport modules to use.
+
+### `all ndx modules get auto-loaded by default, so all you need to do is npm install them`
 
 ## modules
 
