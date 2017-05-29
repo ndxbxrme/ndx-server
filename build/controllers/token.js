@@ -117,6 +117,7 @@
         where = {};
         where[ndx.settings.AUTO_ID] = userId;
         return ndx.database.select(ndx.settings.USER_TABLE, where, function(users) {
+          var user;
           if (users && users.length) {
             if (!ndx.user) {
               ndx.user = {};
@@ -130,6 +131,14 @@
               ndx.setAuthCookie(req, res);
             }
             users = null;
+          } else if (ndx.settings.ANONYMOUS_USER) {
+            user = {
+              roles: {
+                anon: true
+              }
+            };
+            user[ndx.settings.AUTO_ID] = 'anonymous';
+            ndx.user = user;
           }
           return next();
         }, true);

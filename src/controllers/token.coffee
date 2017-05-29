@@ -92,5 +92,11 @@ module.exports = (ndx) ->
           if isCookie
             ndx.setAuthCookie req, res
           users = null
+        else if ndx.settings.ANONYMOUS_USER
+          user =
+            roles:
+              anon: true
+          user[ndx.settings.AUTO_ID] = 'anonymous'
+          ndx.user = user
         next()
       , true
