@@ -84,7 +84,8 @@ module.exports =
           stream: accessLogStream
     ndx.app.use maintenance
       database: ndx.database
-    .use bodyParser.json()
+    .use bodyParser.json
+      limit: '50mb'
     .use cookieParser ndx.settings.SESSION_SECRET
     .use session
       name: 'NDXSESSION'
@@ -140,7 +141,10 @@ module.exports =
     setImmediate ->
       ndx.app.use (err, req, res, next) ->
         message = err.message or err.toString()
-        res.status(err.status or 500).send message
+        if Object.prototype.toString.call message is '[object Object]'
+          res.status(err.status or 500).json message
+        else
+          res.status(err.status or 500).send message
 
 
     ndx.server.listen ndx.port, ->

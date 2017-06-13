@@ -86,7 +86,7 @@
       }
     };
     return ndx.app.use('/api/*', function(req, res, next) {
-      var credentials, i, isCookie, len, parts, route, scheme, token, userId, where;
+      var credentials, i, isCookie, len, parts, route, scheme, token, user, userId, where;
       ndx.user = null;
       if (req.method === 'OPTIONS') {
         return next();
@@ -94,6 +94,15 @@
       for (i = 0, len = publicRoutes.length; i < len; i++) {
         route = publicRoutes[i];
         if (new RegExp(route).test(req.originalUrl)) {
+          if (ndx.settings.ANONYMOUS_USER) {
+            user = {
+              roles: {
+                anon: true
+              }
+            };
+            user[ndx.settings.AUTO_ID] = 'anonymous';
+            ndx.user = user;
+          }
           return next();
         }
       }
@@ -117,7 +126,6 @@
         where = {};
         where[ndx.settings.AUTO_ID] = userId;
         return ndx.database.select(ndx.settings.USER_TABLE, where, function(users) {
-          var user;
           if (users && users.length) {
             if (!ndx.user) {
               ndx.user = {};
@@ -131,14 +139,6 @@
               ndx.setAuthCookie(req, res);
             }
             users = null;
-          } else if (ndx.settings.ANONYMOUS_USER) {
-            user = {
-              roles: {
-                anon: true
-              }
-            };
-            user[ndx.settings.AUTO_ID] = 'anonymous';
-            ndx.user = user;
           }
           return next();
         }, true);

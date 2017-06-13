@@ -110,7 +110,9 @@
       }
       ndx.app.use(maintenance({
         database: ndx.database
-      })).use(bodyParser.json()).use(cookieParser(ndx.settings.SESSION_SECRET)).use(session({
+      })).use(bodyParser.json({
+        limit: '50mb'
+      })).use(cookieParser(ndx.settings.SESSION_SECRET)).use(session({
         name: 'NDXSESSION',
         secret: ndx.settings.SESSION_SECRET,
         saveUninitialized: true,
@@ -184,7 +186,11 @@
         return ndx.app.use(function(err, req, res, next) {
           var message;
           message = err.message || err.toString();
-          return res.status(err.status || 500).send(message);
+          if (Object.prototype.toString.call(message === '[object Object]')) {
+            return res.status(err.status || 500).json(message);
+          } else {
+            return res.status(err.status || 500).send(message);
+          }
         });
       });
       ndx.server.listen(ndx.port, function() {

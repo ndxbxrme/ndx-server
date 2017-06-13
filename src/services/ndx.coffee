@@ -8,6 +8,8 @@ module.exports =
   generateID: ->
     ObjectID.generate()
   extend: (dest, source) ->
+    Object.assign dest, source
+    ###
     if not dest
       dest = {}
     if not source
@@ -18,6 +20,7 @@ module.exports =
           @extend dest[i], source[i]
         else
           dest[i] = source[i]
+    ###
   fillTemplate: (template, data) -> 
     template.replace /\{\{(.+?)\}\}/g, (all, match) ->
       evalInContext = (str, context) ->
