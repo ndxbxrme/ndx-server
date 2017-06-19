@@ -185,7 +185,12 @@
       setImmediate(function() {
         return ndx.app.use(function(err, req, res, next) {
           var message;
-          message = err.message || err.toString();
+          message = '';
+          if (err.hasOwnProperty('message')) {
+            message = err.message;
+          } else {
+            message = err.toString();
+          }
           if (Object.prototype.toString.call(message === '[object Object]')) {
             return res.status(err.status || 500).json(message);
           } else {

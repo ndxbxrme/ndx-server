@@ -140,7 +140,11 @@ module.exports =
       
     setImmediate ->
       ndx.app.use (err, req, res, next) ->
-        message = err.message or err.toString()
+        message = ''
+        if err.hasOwnProperty 'message'
+          message = err.message
+        else
+          message = err.toString()
         if Object.prototype.toString.call message is '[object Object]'
           res.status(err.status or 500).json message
         else
