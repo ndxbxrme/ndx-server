@@ -143,7 +143,7 @@
           moduleName = module.replace('node_modules/', '');
           modulePackage = require((process.cwd()) + "/node_modules/" + moduleName + "/package.json");
           if (moduleName.indexOf('ndx-') === 0 || modulePackage.ndx) {
-            if (moduleName !== 'ndx-server') {
+            if (moduleName !== 'ndx-server' && modulePackage.loadOrder !== 'ignore') {
               modulesToLoad.push({
                 name: moduleName,
                 loadOrder: Object.prototype.toString.call(modulePackage.loadOrder) === '[object Number]' ? modulePackage.loadOrder : 5

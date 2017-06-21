@@ -113,7 +113,7 @@ module.exports =
         moduleName = module.replace('node_modules/', '')
         modulePackage = require("#{process.cwd()}/node_modules/#{moduleName}/package.json")
         if moduleName.indexOf('ndx-') is 0 or modulePackage.ndx
-          if moduleName isnt 'ndx-server'
+          if moduleName isnt 'ndx-server' and modulePackage.loadOrder isnt 'ignore'
             modulesToLoad.push
               name: moduleName
               loadOrder: if Object.prototype.toString.call(modulePackage.loadOrder) is '[object Number]' then modulePackage.loadOrder else 5
