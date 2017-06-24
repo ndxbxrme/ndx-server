@@ -85,6 +85,12 @@
         });
       }
     };
+    ndx.app.use('/*', function(req, res, next) {
+      if (req.headers.ndxhost) {
+        ndx.host = req.headers.ndxhost;
+      }
+      return next();
+    });
     return ndx.app.use('/api/*', function(req, res, next) {
       var credentials, i, isCookie, len, parts, route, scheme, token, user, userId, where;
       ndx.user = null;

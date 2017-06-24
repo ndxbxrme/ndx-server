@@ -58,6 +58,10 @@ module.exports = (ndx) ->
       cookieText = ndx.generateToken ndx.user[ndx.settings.AUTO_ID], req.ip
       res.cookie 'token', cookieText, maxAge: 7 * 24 * 60 * 60 * 1000  
     return
+  ndx.app.use '/*', (req, res, next) ->
+    if req.headers.ndxhost
+      ndx.host = req.headers.ndxhost
+    next()
   ndx.app.use '/api/*', (req, res, next) ->
     ndx.user = null
     if req.method is 'OPTIONS'
