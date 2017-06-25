@@ -88,6 +88,8 @@
     ndx.app.use('/*', function(req, res, next) {
       if (req.headers.ndxhost) {
         ndx.host = req.headers.ndxhost;
+      } else {
+        ndx.host = req.protocol + "://" + req.headers.host;
       }
       return next();
     });

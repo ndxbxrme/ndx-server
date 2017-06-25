@@ -61,6 +61,8 @@ module.exports = (ndx) ->
   ndx.app.use '/*', (req, res, next) ->
     if req.headers.ndxhost
       ndx.host = req.headers.ndxhost
+    else
+      ndx.host = "#{req.protocol}://#{req.headers.host}"
     next()
   ndx.app.use '/api/*', (req, res, next) ->
     ndx.user = null

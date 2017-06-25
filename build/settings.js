@@ -1,6 +1,7 @@
 (function() {
   'use strict';
   module.exports = {
+    AUTO_RESTART: process.env.AUTO_RESTART || true,
     PORT: process.env.PORT || 23232,
     SSL_PORT: process.env.SSL_PORT,
     AWS_BUCKET: process.env.AWS_BUCKET,
