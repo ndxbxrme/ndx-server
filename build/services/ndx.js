@@ -14,20 +14,26 @@
       return ObjectID.generate();
     },
     extend: function(dest, source) {
-      return Object.assign(dest, source);
-
-      /*
-      if not dest
-        dest = {}
-      if not source
-        source = {}
-      for i of source
-        if source.hasOwnProperty(i)
-          if dest.hasOwnProperty(i) and Object.prototype.toString.call(dest[i]) is '[object Object]'
-            @extend dest[i], source[i]
-          else
-            dest[i] = source[i]
-       */
+      var i, results;
+      if (!dest) {
+        dest = {};
+      }
+      if (!source) {
+        source = {};
+      }
+      results = [];
+      for (i in source) {
+        if (source.hasOwnProperty(i)) {
+          if (dest.hasOwnProperty(i) && Object.prototype.toString.call(dest[i]) === '[object Object]') {
+            results.push(this.extend(dest[i], source[i]));
+          } else {
+            results.push(dest[i] = source[i]);
+          }
+        } else {
+          results.push(void 0);
+        }
+      }
+      return results;
     },
     fillTemplate: function(template, data) {
       return template.replace(/\{\{(.+?)\}\}/g, function(all, match) {
