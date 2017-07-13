@@ -4,7 +4,7 @@ crypto = require 'crypto-js'
 bcrypt = require 'bcrypt-nodejs'
 
 module.exports = (ndx) ->
-  publicRoutes = ['/api/login', '/api/signup']
+  publicRoutes = ['/api/login', '/api/signup', '/api/logout']
   ndx.addPublicRoute = (route) ->
     publicRoutes.push route
   ndx.generateHash = (password) ->
