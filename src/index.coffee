@@ -161,12 +161,12 @@ module.exports =
             res.status(err.status or 500).json message
           else
             res.status(err.status or 500).send message
-
+      ###  
       process.on 'uncaughtException', (err) ->
         console.log 'uncaughtException'
         console.log err
         process.exit 1
-
+      ###
       ndx.server.listen ndx.port, ->
         console.log chalk.yellow "ndx server v#{chalk.cyan.bold(ndx.version)} listening on #{chalk.cyan.bold(ndx.port)}"
       if settings.SSL_PORT

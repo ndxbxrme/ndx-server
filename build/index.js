@@ -214,11 +214,13 @@
             }
           });
         });
-        process.on('uncaughtException', function(err) {
-          console.log('uncaughtException');
-          console.log(err);
-          return process.exit(1);
-        });
+
+        /*  
+        process.on 'uncaughtException', (err) ->
+          console.log 'uncaughtException'
+          console.log err
+          process.exit 1
+         */
         ndx.server.listen(ndx.port, function() {
           return console.log(chalk.yellow("ndx server v" + (chalk.cyan.bold(ndx.version)) + " listening on " + (chalk.cyan.bold(ndx.port))));
         });
