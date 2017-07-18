@@ -143,6 +143,7 @@
             } else {
               ndx.user = users[0];
             }
+            ndx.user.ip = req.ip;
             if (isCookie) {
               ndx.setAuthCookie(req, res);
             }

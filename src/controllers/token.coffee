@@ -101,6 +101,7 @@ module.exports = (ndx) ->
             ndx.extend ndx.user, users[0]
           else
             ndx.user = users[0]
+          ndx.user.ip = req.ip
           if isCookie
             ndx.setAuthCookie req, res
           users = null
