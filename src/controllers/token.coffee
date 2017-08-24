@@ -13,7 +13,7 @@ module.exports = (ndx) ->
     bcrypt.compareSync password, localPassword
   ndx.postAuthenticate = (req, res, next) ->
     ndx.setAuthCookie req, res
-    res.redirect '/'
+    res.send req.user._id
   ndx.authenticate = () ->
     (req, res, next) ->
       if ndx.user

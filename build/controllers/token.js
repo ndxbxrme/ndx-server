@@ -20,7 +20,7 @@
     };
     ndx.postAuthenticate = function(req, res, next) {
       ndx.setAuthCookie(req, res);
-      return res.redirect('/');
+      return res.send(req.user._id);
     };
     ndx.authenticate = function() {
       return function(req, res, next) {
