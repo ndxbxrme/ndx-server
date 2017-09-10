@@ -1,6 +1,6 @@
 {
   "name": "ndx-server",
-  "version": "0.13.10",
+  "version": "0.13.11",
   "description": "my server framework",
   "main": "build/index.js",
   "scripts": {
@@ -40,7 +40,7 @@
     "glob": "^7.1.1",
     "helmet": "^3.3.0",
     "morgan": "^1.7.0",
-    "ndxdb": "^1.8.11",
+    "ndxdb": "^1.8.12",
     "rotating-file-stream": "^1.2.2",
     "session-memory-store": "^0.2.2",
     "underscore.string": "^3.3.4"
