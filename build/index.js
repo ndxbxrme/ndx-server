@@ -69,7 +69,7 @@
       return this;
     },
     start: function() {
-      var MemoryStore, accessLogStream, bodyParser, compression, cookieParser, ctrl, express, folder, helmet, http, https, i, j, k, l, len, len1, len2, len3, len4, len5, len6, m, maintenance, module, moduleName, modulePackage, modulesToLoad, morgan, n, ndx, o, p, r, ref, session, useCtrl;
+      var MemoryStore, accessLogStream, bodyParser, compression, cookieParser, ctrl, express, folder, helmet, http, https, i, j, k, l, len, len1, len2, len3, len4, len5, len6, m, maintenance, module, moduleName, modulePackage, modulesToLoad, morgan, n, ndx, o, p, r, ref, session, useCtrl, w;
       if (cluster.isMaster) {
         i = 0;
         while (i++ < 1) {
@@ -84,7 +84,7 @@
           }
         });
       } else {
-        console.log("ndx server starting");
+        console.log("\nndx server starting");
         if (!configured) {
           this.config();
         }
@@ -145,6 +145,7 @@
           }, ndx.app);
         }
         require('./controllers/token')(ndx);
+        modulesToLoad = [];
         if (settings.AUTO_LOAD_MODULES) {
           r = glob.sync("server/startup/**/*.js");
           r.reverse();
@@ -152,7 +153,6 @@
             module = r[j];
             require((process.cwd()) + "/" + module)(ndx);
           }
-          modulesToLoad = [];
           r = glob.sync('node_modules/*');
           for (k = 0, len1 = r.length; k < len1; k++) {
             module = r[k];
@@ -162,7 +162,8 @@
               if (moduleName !== 'ndx-server' && modulePackage.loadOrder !== 'ignore') {
                 modulesToLoad.push({
                   name: moduleName,
-                  loadOrder: Object.prototype.toString.call(modulePackage.loadOrder) === '[object Number]' ? modulePackage.loadOrder : 5
+                  loadOrder: Object.prototype.toString.call(modulePackage.loadOrder) === '[object Number]' ? modulePackage.loadOrder : 5,
+                  version: modulePackage.version
                 });
               }
             }
@@ -171,9 +172,18 @@
           modulesToLoad.sort(function(a, b) {
             return a.loadOrder - b.loadOrder;
           });
+          console.log('');
+          w = function(text) {
+            i = text.length;
+            while (i++ < 20) {
+              text += ' ';
+            }
+            return text;
+          };
           for (l = 0, len2 = modulesToLoad.length; l < len2; l++) {
             module = modulesToLoad[l];
             require("../../" + module.name)(ndx);
+            console.log((w(module.name)) + "\t" + module.version);
           }
           ref = ['services', 'controllers'];
           for (m = 0, len3 = ref.length; m < len3; m++) {
@@ -222,7 +232,7 @@
           process.exit 1
          */
         ndx.server.listen(ndx.port, function() {
-          return console.log(chalk.yellow("ndx server v" + (chalk.cyan.bold(ndx.version)) + " listening on " + (chalk.cyan.bold(ndx.port))));
+          return console.log(chalk.yellow(ndx.logo + "ndx server v" + (chalk.cyan.bold(ndx.version)) + " listening on " + (chalk.cyan.bold(ndx.port))));
         });
         if (settings.SSL_PORT) {
           return ndx.sslserver.listen(ndx.ssl_port, function() {

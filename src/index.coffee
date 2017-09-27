@@ -56,7 +56,7 @@ module.exports =
         else
           process.exit 1
     else
-      console.log "ndx server starting"
+      console.log "\nndx server starting"
       if not configured
         @config()
       ndx = require './services/ndx'
@@ -112,14 +112,13 @@ module.exports =
           key: fs.readFileSync 'key.pem'
           cert: fs.readFileSync 'cert.pem'
         , ndx.app
-
       require('./controllers/token') ndx
+      modulesToLoad = []
       if settings.AUTO_LOAD_MODULES
         r = glob.sync "server/startup/**/*.js"
         r.reverse()
         for module in r
           require("#{process.cwd()}/#{module}") ndx
-        modulesToLoad = []
         r = glob.sync 'node_modules/*'
         for module in r
           moduleName = module.replace('node_modules/', '')
@@ -129,12 +128,20 @@ module.exports =
               modulesToLoad.push
                 name: moduleName
                 loadOrder: if Object.prototype.toString.call(modulePackage.loadOrder) is '[object Number]' then modulePackage.loadOrder else 5
+                version: modulePackage.version
           modulePackage = null
         modulesToLoad.sort (a, b) ->
           a.loadOrder - b.loadOrder
+        console.log ''
+        w = (text) ->
+          i = text.length
+          while i++ < 20
+            text += ' '
+          text
         for module in modulesToLoad
           #console.log "loading #{module.name}"
           require("../../#{module.name}") ndx
+          console.log "#{w(module.name)}\t#{module.version}"
         for folder in ['services', 'controllers']
           r = glob.sync "server/#{folder}/**/*.js"
           r.reverse()
@@ -168,7 +175,7 @@ module.exports =
         process.exit 1
       ###
       ndx.server.listen ndx.port, ->
-        console.log chalk.yellow "ndx server v#{chalk.cyan.bold(ndx.version)} listening on #{chalk.cyan.bold(ndx.port)}"
+        console.log chalk.yellow "#{ndx.logo}ndx server v#{chalk.cyan.bold(ndx.version)} listening on #{chalk.cyan.bold(ndx.port)}"
       if settings.SSL_PORT
         ndx.sslserver.listen ndx.ssl_port, ->
           console.log chalk.yellow "ndx ssl server v#{chalk.cyan.bold(ndx.version)} listening on #{chalk.cyan.bold(ndx.ssl_port)}"
