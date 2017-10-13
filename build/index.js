@@ -232,7 +232,8 @@
           process.exit 1
          */
         ndx.server.listen(ndx.port, function() {
-          return console.log(chalk.yellow(ndx.logo + "ndx server v" + (chalk.cyan.bold(ndx.version)) + " listening on " + (chalk.cyan.bold(ndx.port))));
+          console.log(chalk.yellow(ndx.logo + "ndx server v" + (chalk.cyan.bold(ndx.version)) + " listening on " + (chalk.cyan.bold(ndx.port))));
+          return console.log(chalk.yellow("started: " + (new Date().toLocaleString())));
         });
         if (settings.SSL_PORT) {
           return ndx.sslserver.listen(ndx.ssl_port, function() {
