@@ -56,6 +56,7 @@ module.exports = (ndx) ->
   ndx.setAuthCookie = (req, res) ->
     if ndx.user
       cookieText = ndx.generateToken ndx.user[ndx.settings.AUTO_ID], req.ip
+      res.encToken = cookieText
       res.cookie 'token', cookieText, maxAge: 7 * 24 * 60 * 60 * 1000  
     return
   ndx.app.use '/*', (req, res, next) ->

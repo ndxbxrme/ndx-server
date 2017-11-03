@@ -114,11 +114,14 @@ module.exports =
           if req.body and req.headers['content-type'] and req.headers['content-type'].indexOf('application/json') is 0
             req.body = JSON.parse JSON.parse cryptojs.AES.decrypt(req.body, req.cookies.token or 'nothing').toString(cryptojs.enc.Utf8)
           next()
-        .use (req, res, next) ->
-          _json = res.json
-          res.json = (data) ->
-            res.end cryptojs.AES.encrypt(JSON.stringify(data), '123').toString()
-          next()
+        setImmediate ->
+          ndx.app.use (req, res, next) ->
+            _json = res.json
+            token = req.cookies.token
+            res.json = (data) ->
+              res.set 'NDXEnc', 'true'
+              res.end cryptojs.AES.encrypt(JSON.stringify(data), res.encToken or token or 'nothing').toString()
+            next()
       else
         ndx.app.use bodyParser.json
           limit: '50mb'

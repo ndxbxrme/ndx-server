@@ -147,13 +147,18 @@
               req.body = JSON.parse(JSON.parse(cryptojs.AES.decrypt(req.body, req.cookies.token || 'nothing').toString(cryptojs.enc.Utf8)));
             }
             return next();
-          }).use(function(req, res, next) {
-            var _json;
-            _json = res.json;
-            res.json = function(data) {
-              return res.end(cryptojs.AES.encrypt(JSON.stringify(data), '123').toString());
-            };
-            return next();
+          });
+          setImmediate(function() {
+            return ndx.app.use(function(req, res, next) {
+              var _json, token;
+              _json = res.json;
+              token = req.cookies.token;
+              res.json = function(data) {
+                res.set('NDXEnc', 'true');
+                return res.end(cryptojs.AES.encrypt(JSON.stringify(data), res.encToken || token || 'nothing').toString());
+              };
+              return next();
+            });
           });
         } else {
           ndx.app.use(bodyParser.json({
