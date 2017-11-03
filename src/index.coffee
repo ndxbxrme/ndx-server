@@ -7,6 +7,7 @@ glob = require 'glob'
 fs = require 'fs'
 rfs = require 'rotating-file-stream'
 cluster = require 'cluster'
+cryptojs = require 'crypto-js'
 
 
 configured = false
@@ -96,9 +97,6 @@ module.exports =
             stream: accessLogStream
       ndx.app.use maintenance
         database: ndx.database
-      .use bodyParser.json
-        limit: '50mb'
-      .use cookieParser ndx.settings.SESSION_SECRET
       .use session
         name: 'NDXSESSION'
         secret: ndx.settings.SESSION_SECRET
@@ -106,6 +104,24 @@ module.exports =
         resave: true
         store: new MemoryStore
           expires: 5
+      .use cookieParser ndx.settings.SESSION_SECRET
+      if ndx.settings.E2E_ENCRYPTION
+        ndx.app.use bodyParser.text
+          type: '*/*'
+          limit: '50mb'
+        .use (req, res, next) ->
+          req.rawBody = req.body
+          if req.body and req.headers['content-type'] and req.headers['content-type'].indexOf('application/json') is 0
+            req.body = JSON.parse JSON.parse cryptojs.AES.decrypt(req.body, req.cookies.token or 'nothing').toString(cryptojs.enc.Utf8)
+          next()
+        .use (req, res, next) ->
+          _json = res.json
+          res.json = (data) ->
+            res.end cryptojs.AES.encrypt(JSON.stringify(data), '123').toString()
+          next()
+      else
+        ndx.app.use bodyParser.json
+          limit: '50mb'
       ndx.server = http.createServer ndx.app
       if settings.SSL_PORT
         ndx.sslserver = https.createServer 
