@@ -106,22 +106,20 @@ module.exports =
           expires: 5
       .use cookieParser ndx.settings.SESSION_SECRET
       if ndx.settings.E2E_ENCRYPTION
-        ndx.app.use bodyParser.text
-          type: '*/*'
-          limit: '50mb'
+        ndx.app.use '/api', (req, res, next) ->
+          if req.headers['content-type'] and req.headers['content-type'].indexOf('application/json') is 0
+            bodyParser.text({type:'*/*',limit:'50mb'})(req, res, next)
+          else
+            bodyParser.json({limit:'50mb'})(req, res, next)
         .use (req, res, next) ->
-          req.rawBody = req.body
-          if req.body and req.headers['content-type'] and req.headers['content-type'].indexOf('application/json') is 0
-            req.body = JSON.parse JSON.parse cryptojs.AES.decrypt(req.body, req.cookies.token or 'nothing').toString(cryptojs.enc.Utf8)
+          if req.headers['content-type'] and req.headers['content-type'].indexOf('application/json') is 0
+            if ndx.crypto
+              ndx.crypto.decrypt req
           next()
-        setImmediate ->
-          ndx.app.use (req, res, next) ->
-            _json = res.json
-            token = req.cookies.token
-            res.json = (data) ->
-              res.set 'NDXEnc', 'true'
-              res.end cryptojs.AES.encrypt(JSON.stringify(data), res.encToken or token or 'nothing').toString()
-            next()
+        ndx.app.use (req, res, next) ->
+          if ndx.crypto
+            ndx.crypto.encrypt res
+          next()
       else
         ndx.app.use bodyParser.json
           limit: '50mb'

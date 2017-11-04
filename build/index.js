@@ -138,27 +138,30 @@
           })
         })).use(cookieParser(ndx.settings.SESSION_SECRET));
         if (ndx.settings.E2E_ENCRYPTION) {
-          ndx.app.use(bodyParser.text({
-            type: '*/*',
-            limit: '50mb'
-          })).use(function(req, res, next) {
-            req.rawBody = req.body;
-            if (req.body && req.headers['content-type'] && req.headers['content-type'].indexOf('application/json') === 0) {
-              req.body = JSON.parse(JSON.parse(cryptojs.AES.decrypt(req.body, req.cookies.token || 'nothing').toString(cryptojs.enc.Utf8)));
+          ndx.app.use('/api', function(req, res, next) {
+            if (req.headers['content-type'] && req.headers['content-type'].indexOf('application/json') === 0) {
+              return bodyParser.text({
+                type: '*/*',
+                limit: '50mb'
+              })(req, res, next);
+            } else {
+              return bodyParser.json({
+                limit: '50mb'
+              })(req, res, next);
+            }
+          }).use(function(req, res, next) {
+            if (req.headers['content-type'] && req.headers['content-type'].indexOf('application/json') === 0) {
+              if (ndx.crypto) {
+                ndx.crypto.decrypt(req);
+              }
             }
             return next();
           });
-          setImmediate(function() {
-            return ndx.app.use(function(req, res, next) {
-              var _json, token;
-              _json = res.json;
-              token = req.cookies.token;
-              res.json = function(data) {
-                res.set('NDXEnc', 'true');
-                return res.end(cryptojs.AES.encrypt(JSON.stringify(data), res.encToken || token || 'nothing').toString());
-              };
-              return next();
-            });
+          ndx.app.use(function(req, res, next) {
+            if (ndx.crypto) {
+              ndx.crypto.encrypt(res);
+            }
+            return next();
           });
         } else {
           ndx.app.use(bodyParser.json({
