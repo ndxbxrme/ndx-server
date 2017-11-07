@@ -106,7 +106,7 @@ module.exports =
           expires: 5
       .use cookieParser ndx.settings.SESSION_SECRET
       if ndx.settings.E2E_ENCRYPTION
-        ndx.app.use '/api', (req, res, next) ->
+        ndx.app.use (req, res, next) ->
           if req.headers['content-type'] and req.headers['content-type'].indexOf('application/json') is 0
             bodyParser.text({type:'*/*',limit:'50mb'})(req, res, next)
           else

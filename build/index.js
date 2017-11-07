@@ -138,7 +138,7 @@
           })
         })).use(cookieParser(ndx.settings.SESSION_SECRET));
         if (ndx.settings.E2E_ENCRYPTION) {
-          ndx.app.use('/api', function(req, res, next) {
+          ndx.app.use(function(req, res, next) {
             if (req.headers['content-type'] && req.headers['content-type'].indexOf('application/json') === 0) {
               return bodyParser.text({
                 type: '*/*',
