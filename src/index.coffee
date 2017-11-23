@@ -161,9 +161,10 @@ module.exports =
           console.log "#{w(module.name)}\t#{module.version}"
         for folder in ['services', 'controllers']
           r = glob.sync "server/#{folder}/**/*.js"
+          console.log r
           r.reverse()
           for module in r
-            #console.log "loading #{module}"
+            console.log "loading #{module}"
             require("#{process.cwd()}/#{module}") ndx
       for useCtrl in uselist
         useCtrl ndx

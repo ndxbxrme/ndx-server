@@ -220,9 +220,11 @@
           for (m = 0, len3 = ref.length; m < len3; m++) {
             folder = ref[m];
             r = glob.sync("server/" + folder + "/**/*.js");
+            console.log(r);
             r.reverse();
             for (n = 0, len4 = r.length; n < len4; n++) {
               module = r[n];
+              console.log("loading " + module);
               require((process.cwd()) + "/" + module)(ndx);
             }
           }
