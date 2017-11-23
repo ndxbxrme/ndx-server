@@ -185,6 +185,7 @@
             require((process.cwd()) + "/" + module)(ndx);
           }
           r = glob.sync('node_modules/*');
+          console.log(r);
           for (k = 0, len1 = r.length; k < len1; k++) {
             module = r[k];
             moduleName = module.replace('node_modules/', '');
@@ -220,11 +221,9 @@
           for (m = 0, len3 = ref.length; m < len3; m++) {
             folder = ref[m];
             r = glob.sync("server/" + folder + "/**/*.js");
-            console.log(r);
             r.reverse();
             for (n = 0, len4 = r.length; n < len4; n++) {
               module = r[n];
-              console.log("loading " + module);
               require((process.cwd()) + "/" + module)(ndx);
             }
           }
