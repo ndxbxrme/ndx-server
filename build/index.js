@@ -71,7 +71,7 @@
       return this;
     },
     start: function() {
-      var MemoryStore, accessLogStream, bodyParser, compression, cookieParser, ctrl, express, folder, helmet, http, https, i, j, k, l, len, len1, len2, len3, len4, len5, len6, m, maintenance, module, moduleName, modulePackage, modulesToLoad, morgan, n, ndx, o, p, r, ref, session, useCtrl, w;
+      var MemoryStore, accessLogStream, bodyParser, compression, cookieParser, ctrl, e, error, express, folder, helmet, http, https, i, j, k, l, len, len1, len2, len3, len4, len5, len6, m, maintenance, module, moduleName, modulePackage, modulesToLoad, morgan, n, ndx, o, p, r, ref, session, useCtrl, w;
       if (cluster.isMaster) {
         i = 0;
         while (i++ < 1) {
@@ -185,11 +185,15 @@
             require((process.cwd()) + "/" + module)(ndx);
           }
           r = glob.sync('node_modules/*');
-          console.log(r);
           for (k = 0, len1 = r.length; k < len1; k++) {
             module = r[k];
             moduleName = module.replace('node_modules/', '');
-            modulePackage = require((process.cwd()) + "/node_modules/" + moduleName + "/package.json");
+            modulePackage = {};
+            try {
+              modulePackage = require((process.cwd()) + "/node_modules/" + moduleName + "/package.json");
+            } catch (error) {
+              e = error;
+            }
             if (moduleName.indexOf('ndx-') === 0 || modulePackage.ndx) {
               if (moduleName !== 'ndx-server' && modulePackage.loadOrder !== 'ignore') {
                 modulesToLoad.push({

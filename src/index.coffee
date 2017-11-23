@@ -137,10 +137,12 @@ module.exports =
         for module in r
           require("#{process.cwd()}/#{module}") ndx
         r = glob.sync 'node_modules/*'
-        console.log r
         for module in r
           moduleName = module.replace('node_modules/', '')
-          modulePackage = require("#{process.cwd()}/node_modules/#{moduleName}/package.json")
+          modulePackage = {}
+          try
+            modulePackage = require("#{process.cwd()}/node_modules/#{moduleName}/package.json")
+          catch e
           if moduleName.indexOf('ndx-') is 0 or modulePackage.ndx
             if moduleName isnt 'ndx-server' and modulePackage.loadOrder isnt 'ignore'
               modulesToLoad.push
