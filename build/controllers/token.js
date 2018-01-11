@@ -43,6 +43,9 @@
     };
     ndx.parseToken = function(token, skipIp) {
       var bits, d, decrypted, e, error;
+      if (!token) {
+        return null;
+      }
       decrypted = '';
       try {
         decrypted = crypto.Rabbit.decrypt(token, ndx.settings.SESSION_SECRET).toString(crypto.enc.Utf8);
@@ -59,22 +62,11 @@
           if (d.toString() !== 'Invalid Date') {
             if (d.valueOf() > new Date().valueOf()) {
               return bits[0];
-            } else {
-              throw ndx.UNAUTHORIZED;
             }
-          } else {
-            throw ndx.UNAUTHORIZED;
           }
-        } else {
-          throw ndx.UNAUTHORIZED;
         }
-      } else {
-        ndx.user = null;
-        throw {
-          status: 200,
-          message: ''
-        };
       }
+      return null;
     };
     ndx.setAuthCookie = function(req, res) {
       var cookieText;
@@ -100,21 +92,6 @@
       if (req.method === 'OPTIONS') {
         return next();
       }
-      for (i = 0, len = publicRoutes.length; i < len; i++) {
-        route = publicRoutes[i];
-        if (new RegExp(route).test(req.originalUrl)) {
-          if (ndx.settings.ANONYMOUS_USER) {
-            user = {
-              roles: {
-                anon: true
-              }
-            };
-            user[ndx.settings.AUTO_ID] = 'anonymous';
-            ndx.user = user;
-          }
-          return next();
-        }
-      }
       if (!ndx.database.maintenance()) {
         isCookie = false;
         token = '';
@@ -132,26 +109,52 @@
           }
         }
         userId = ndx.parseToken(token);
-        where = {};
-        where[ndx.settings.AUTO_ID] = userId;
-        return ndx.database.select(ndx.settings.USER_TABLE, where, function(users) {
-          if (users && users.length) {
-            if (!ndx.user) {
-              ndx.user = {};
+        if (userId) {
+          where = {};
+          where[ndx.settings.AUTO_ID] = userId;
+          return ndx.database.select(ndx.settings.USER_TABLE, where, function(users) {
+            if (users && users.length) {
+              if (!ndx.user) {
+                ndx.user = {};
+              }
+              if (Object.prototype.toString.call(ndx.user) === '[object Object]') {
+                ndx.extend(ndx.user, users[0]);
+              } else {
+                ndx.user = users[0];
+              }
+              ndx.user.ip = req.ip;
+              if (isCookie) {
+                ndx.setAuthCookie(req, res);
+              }
+              users = null;
             }
-            if (Object.prototype.toString.call(ndx.user) === '[object Object]') {
-              ndx.extend(ndx.user, users[0]);
-            } else {
-              ndx.user = users[0];
-            }
-            ndx.user.ip = req.ip;
-            if (isCookie) {
-              ndx.setAuthCookie(req, res);
-            }
-            users = null;
+            return next();
+          }, true);
+        } else {
+          if (ndx.settings.ANONYMOUS_USER && req.headers['anon-id']) {
+            user = {
+              email: 'anon@user.com',
+              local: {
+                email: 'anon@user.com'
+              },
+              roles: {
+                anon: true
+              },
+              type: 'anon',
+              _id: req.headers['anon-id']
+            };
+            ndx.user = user;
+            console.log('set anon user');
+            return next();
           }
-          return next();
-        }, true);
+          for (i = 0, len = publicRoutes.length; i < len; i++) {
+            route = publicRoutes[i];
+            if (new RegExp(route).test(req.originalUrl)) {
+              return next();
+            }
+          }
+          throw ndx.UNAUTHORIZED;
+        }
       }
     });
   };

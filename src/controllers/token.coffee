@@ -29,6 +29,8 @@ module.exports = (ndx) ->
     text = crypto.Rabbit.encrypt(text, ndx.settings.SESSION_SECRET).toString()
     text
   ndx.parseToken = (token, skipIp) ->
+    if not token
+      return null
     decrypted = ''
     try
       decrypted = crypto.Rabbit.decrypt(token, ndx.settings.SESSION_SECRET).toString(crypto.enc.Utf8)
@@ -42,17 +44,7 @@ module.exports = (ndx) ->
         if d.toString() isnt 'Invalid Date'
           if d.valueOf() > new Date().valueOf()
             return bits[0]
-          else
-            throw ndx.UNAUTHORIZED
-        else
-          throw ndx.UNAUTHORIZED
-      else
-        throw ndx.UNAUTHORIZED
-    else
-      ndx.user = null
-      throw
-        status: 200
-        message: ''
+    return null
   ndx.setAuthCookie = (req, res) ->
     if ndx.user
       cookieText = ndx.generateToken ndx.user[ndx.settings.AUTO_ID], req.ip
@@ -69,15 +61,6 @@ module.exports = (ndx) ->
     ndx.user = null
     if req.method is 'OPTIONS'
       return next()
-    for route in publicRoutes
-      if new RegExp(route).test req.originalUrl
-        if ndx.settings.ANONYMOUS_USER
-          user =
-            roles:
-              anon: true
-          user[ndx.settings.AUTO_ID] = 'anonymous'
-          ndx.user = user
-        return next()
     if not ndx.database.maintenance()
       isCookie = false
       token = ''
@@ -92,19 +75,37 @@ module.exports = (ndx) ->
           if /^Bearer$/i.test scheme
             token = credentials
       userId = ndx.parseToken token
-      where = {}
-      where[ndx.settings.AUTO_ID] = userId
-      ndx.database.select ndx.settings.USER_TABLE, where, (users) ->
-        if users and users.length
-          if not ndx.user
-            ndx.user = {}
-          if Object.prototype.toString.call(ndx.user) is '[object Object]'
-            ndx.extend ndx.user, users[0]
-          else
-            ndx.user = users[0]
-          ndx.user.ip = req.ip
-          if isCookie
-            ndx.setAuthCookie req, res
-          users = null
-        next()
-      , true
+      if userId
+        where = {}
+        where[ndx.settings.AUTO_ID] = userId
+        ndx.database.select ndx.settings.USER_TABLE, where, (users) ->
+          if users and users.length
+            if not ndx.user
+              ndx.user = {}
+            if Object.prototype.toString.call(ndx.user) is '[object Object]'
+              ndx.extend ndx.user, users[0]
+            else
+              ndx.user = users[0]
+            ndx.user.ip = req.ip
+            if isCookie
+              ndx.setAuthCookie req, res
+            users = null
+          next()
+        , true
+      else
+        if ndx.settings.ANONYMOUS_USER and req.headers['anon-id']
+          user =
+            email: 'anon@user.com'
+            local:
+              email: 'anon@user.com'
+            roles:
+              anon: true
+            type: 'anon'
+            _id: req.headers['anon-id']
+          ndx.user = user
+          console.log 'set anon user'
+          return next()
+        for route in publicRoutes
+          if new RegExp(route).test req.originalUrl
+            return next()
+        throw ndx.UNAUTHORIZED
