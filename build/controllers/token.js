@@ -8,7 +8,7 @@
 
   module.exports = function(ndx) {
     var publicRoutes;
-    publicRoutes = ['/api/login', '/api/signup', '/api/logout'];
+    publicRoutes = ['/api/login', '/api/signup', '/api/logout', '/api/download'];
     ndx.addPublicRoute = function(route) {
       return publicRoutes.push(route);
     };
