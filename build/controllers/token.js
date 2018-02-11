@@ -144,7 +144,6 @@
               _id: req.headers['anon-id']
             };
             ndx.user = user;
-            console.log('set anon user');
             return next();
           }
           for (i = 0, len = publicRoutes.length; i < len; i++) {

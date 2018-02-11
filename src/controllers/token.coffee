@@ -103,7 +103,6 @@ module.exports = (ndx) ->
             type: 'anon'
             _id: req.headers['anon-id']
           ndx.user = user
-          console.log 'set anon user'
           return next()
         for route in publicRoutes
           if new RegExp(route).test req.originalUrl
