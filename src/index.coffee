@@ -143,7 +143,7 @@ module.exports =
           try
             modulePackage = require("#{process.cwd()}/node_modules/#{moduleName}/package.json")
           catch e
-          if moduleName.indexOf('ndx-') is 0 or modulePackage.ndx
+          if (moduleName.indexOf('ndx-') is 0 or modulePackage.ndx) and not modulePackage.ndxIgnore
             if moduleName isnt 'ndx-server' and modulePackage.loadOrder isnt 'ignore'
               modulesToLoad.push
                 name: moduleName

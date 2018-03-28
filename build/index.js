@@ -194,7 +194,7 @@
             } catch (error) {
               e = error;
             }
-            if (moduleName.indexOf('ndx-') === 0 || modulePackage.ndx) {
+            if ((moduleName.indexOf('ndx-') === 0 || modulePackage.ndx) && !modulePackage.ndxIgnore) {
               if (moduleName !== 'ndx-server' && modulePackage.loadOrder !== 'ignore') {
                 modulesToLoad.push({
                   name: moduleName,
