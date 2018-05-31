@@ -130,9 +130,6 @@ module.exports =
           cert: fs.readFileSync 'cert.pem'
         , ndx.app
       require('./controllers/token') ndx
-      ndx.app.use (req, res, next) ->
-        req.database = ndx.database.bindFns req.user
-        next()
       modulesToLoad = []
       if settings.AUTO_LOAD_MODULES
         r = glob.sync "server/startup/**/*.js"

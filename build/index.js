@@ -176,10 +176,6 @@
           }, ndx.app);
         }
         require('./controllers/token')(ndx);
-        ndx.app.use(function(req, res, next) {
-          req.database = ndx.database.bindFns(req.user);
-          return next();
-        });
         modulesToLoad = [];
         if (settings.AUTO_LOAD_MODULES) {
           r = glob.sync("server/startup/**/*.js");
