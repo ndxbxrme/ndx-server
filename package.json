@@ -1,6 +1,6 @@
 {
   "name": "ndx-server",
-  "version": "0.15.18",
+  "version": "0.16.0",
   "description": "my server framework",
   "main": "build/index.js",
   "scripts": {
@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/ndxbxrme/ndx-server",
   "devDependencies": {
+    "glob": "^7.1.2",
     "grunt": "^1.0.1",
     "grunt-cli": "^1.2.0",
     "grunt-contrib-clean": "^1.0.0",
@@ -37,13 +38,14 @@
     "crypto-js": "^3.1.9-1",
     "express": "^4.14.0",
     "express-session": "^1.15.1",
-    "glob": "^7.1.1",
+    "farmhash": "^2.1.0",
     "helmet": "^3.3.0",
     "morgan": "^1.7.0",
     "ndxdb": "^1.10.10",
     "node-uuid": "^1.4.8",
     "rotating-file-stream": "^1.2.2",
     "session-memory-store": "^0.2.2",
+    "socket.io": "^2.1.1",
     "underscore.string": "^3.3.4"
   }
 }

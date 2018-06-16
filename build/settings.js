@@ -16,7 +16,11 @@
     DO_NOT_LOG: process.env.DO_NOT_LOG,
     LOG_TO_SCREEN: process.env.LOG_TO_SCREEN,
     LOG_DIR: process.env.LOG_DIR || 'logs',
-    LOG_LEVEL: process.env.LOG_LEVEL || 'short'
+    LOG_LEVEL: process.env.LOG_LEVEL || 'short',
+    CLUSTER: process.env.CLUSTER,
+    CLUSTER_MAX: process.env.CLUSTER_MAX || require('os').cpus().length,
+    CLUSTER_HOST: process.env.CLUSTER_HOST || 'localhost',
+    CLUSTER_PORT: process.env.CLUSTER_PORT || 23233
   };
 
 }).call(this);

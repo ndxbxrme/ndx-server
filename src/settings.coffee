@@ -17,3 +17,7 @@ module.exports =
   LOG_TO_SCREEN: process.env.LOG_TO_SCREEN
   LOG_DIR: process.env.LOG_DIR or 'logs'
   LOG_LEVEL: process.env.LOG_LEVEL or 'short'
+  CLUSTER: process.env.CLUSTER
+  CLUSTER_MAX: process.env.CLUSTER_MAX or require('os').cpus().length
+  CLUSTER_HOST: process.env.CLUSTER_HOST or 'localhost'
+  CLUSTER_PORT: process.env.CLUSTER_PORT or 23233
