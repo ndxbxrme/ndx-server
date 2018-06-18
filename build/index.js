@@ -283,7 +283,6 @@
           for (l = 0, len3 = modulesToLoad.length; l < len3; l++) {
             module = modulesToLoad[l];
             require("../../" + module.name)(ndx);
-            console.log((w(module.name)) + "\t" + module.version);
           }
           ref = ['services', 'controllers'];
           for (m = 0, len4 = ref.length; m < len4; m++) {

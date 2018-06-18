@@ -206,7 +206,7 @@ module.exports =
         for module in modulesToLoad
           #console.log "loading #{module.name}"
           require("../../#{module.name}") ndx
-          console.log "#{w(module.name)}\t#{module.version}"
+          #console.log "#{w(module.name)}\t#{module.version}"
         for folder in ['services', 'controllers']
           r = glob.sync "server/#{folder}/**/*.js"
           r.reverse()

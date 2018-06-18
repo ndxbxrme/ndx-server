@@ -84,6 +84,7 @@
       } else {
         ndx.host = req.protocol + "://" + req.headers.host;
       }
+      res.set('Server-Id', ndx.id);
       return next();
     });
     return ndx.app.use('/api/*', function(req, res, next) {
