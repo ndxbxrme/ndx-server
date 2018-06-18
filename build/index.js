@@ -2,8 +2,6 @@
   'use strict';
   var chalk, cluster, configured, controllers, cryptojs, express, fs, glob, http, middleware, rfs, settings, underscored, uselist;
 
-  console.log('hiya ****************');
-
   settings = require('./settings.js');
 
   express = require('express');

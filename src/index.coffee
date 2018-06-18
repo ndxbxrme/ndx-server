@@ -1,5 +1,4 @@
 'use strict'
-console.log 'hiya ****************'
 settings = require './settings.js'
 express = require 'express'
 http = require 'http'
