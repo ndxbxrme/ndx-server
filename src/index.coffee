@@ -1,7 +1,5 @@
 'use strict'
 settings = require './settings.js'
-express = require 'express'
-http = require 'http'
 chalk = require 'chalk'
 underscored = require 'underscore.string'
 .underscored
@@ -49,64 +47,15 @@ module.exports =
     @
   start: ->
     if cluster.isMaster
-      ndx = require './services/ndx'
-      numProcesses = if settings.CLUSTER then +settings.CLUSTER_MAX else 1
-      workers = []
-      spawn = (i) ->
-        console.log 'SPAWNING', i, settings.CLUSTER_MAX
-        workers[i] = cluster.fork()
-        workers[i].on 'exit', (code, signal) ->
-          if settings.AUTO_RESTART and settings.AUTO_RESTART.toString().toLowerCase() isnt 'false'
-            console.log 'respawning worker', i
-            spawn i
-          else
-            process.exit 1
       i = 0
-      while i < numProcesses
-        spawn i++
-      farmhash = require 'farmhash'
-      factory = null
-      options = {}
-      port = null
-      if settings.SSL_PORT
-        factory = require 'tls'
-        options =
-          pauseOnConnect: true
-          key: fs.readFileSync 'key.pem'
-          cert: fs.readFileSync 'cert.pem'
-        port = +settings.SSL_PORT
-      else
-        factory = require 'net'
-        options =
-          pauseOnConnect: true
-        port = +settings.PORT
-      workerIndex = (ip, len) ->
-        farmhash.fingerprint32(ip) % len
-      server = factory.createServer options, (connection) ->
-        address = connection.remoteAddress
-        if address is '::ffff:127.0.0.1'
-          address = '::1'
-        worker = workers[workerIndex(address, numProcesses)]
-        worker.send 'sticky-session:connection', connection
-      .listen port, ->
-        console.log chalk.yellow "#{ndx.logo}ndx #{if process.env.SSL_PORT then 'ssl ' else ''}server v#{chalk.cyan.bold(ndx.version)} listening on #{chalk.cyan.bold(port)}"
-        console.log chalk.yellow "started: #{new Date().toLocaleString()}"
-      if settings.CLUSTER
-        sio = require 'socket.io'
-        sockets = []
-        app = new express()
-        socketServer = http.createServer app
-        io = sio socketServer
-        io.on 'connection', (socket) ->
-          sockets.push socket
-          socket.on 'disconnect', ->
-            sockets.splice sockets.indexOf(socket), 1
-          socket.on 'call', (args) ->
-            for mysocket in sockets
-              mysocket.emit 'call', args
-          console.log 'connection to master', socket.id
-        socketServer.listen +settings.CLUSTER_PORT, ->
-          console.log 'cluster server listening'
+      while i++ < 1
+        cluster.fork()
+      cluster.on 'exit', (worker) ->
+        console.log "Worker #{worker.id} died.."
+        if settings.AUTO_RESTART and settings.AUTO_RESTART.toString().toLowerCase() isnt 'false'
+          cluster.fork()
+        else
+          process.exit 1
     else
       console.log "\nndx server starting"
       if not configured
@@ -116,6 +65,7 @@ module.exports =
       .config settings
       .setNdx ndx
       .start()
+      express = require 'express'
       compression = require 'compression'
       bodyParser = require 'body-parser'
       cookieParser = require 'cookie-parser'
@@ -127,7 +77,7 @@ module.exports =
       helmet = require 'helmet'
       morgan = require 'morgan'
       maintenance = require './maintenance.js'
-      ndx.app = new express()
+      ndx.app = express()
       ndx.static = express.static
       ndx.port = settings.PORT
       ndx.ssl_port = settings.SSL_PORT
@@ -173,7 +123,12 @@ module.exports =
       else
         ndx.app.use bodyParser.json
           limit: '50mb'
-      ndx.server = ndx.app.listen 0, 'localhost'
+      ndx.server = http.createServer ndx.app
+      if settings.SSL_PORT
+        ndx.sslserver = https.createServer 
+          key: fs.readFileSync 'key.pem'
+          cert: fs.readFileSync 'cert.pem'
+        , ndx.app
       require('./controllers/token') ndx
       modulesToLoad = []
       if settings.AUTO_LOAD_MODULES
@@ -206,7 +161,7 @@ module.exports =
         for module in modulesToLoad
           #console.log "loading #{module.name}"
           require("../../#{module.name}") ndx
-          #console.log "#{w(module.name)}\t#{module.version}"
+          console.log "#{w(module.name)}\t#{module.version}"
         for folder in ['services', 'controllers']
           r = glob.sync "server/#{folder}/**/*.js"
           r.reverse()
@@ -239,13 +194,12 @@ module.exports =
         console.log err
         process.exit 1
       ###
-      
-      process.on 'message', (message, connection) ->
-        if message isnt 'sticky-session:connection'
-          return
-        ndx.server.emit 'connection', connection
-        connection.resume()
-      
+      ndx.server.listen ndx.port, ->
+        console.log chalk.yellow "#{ndx.logo}ndx server v#{chalk.cyan.bold(ndx.version)} listening on #{chalk.cyan.bold(ndx.port)}"
+        console.log chalk.yellow "started: #{new Date().toLocaleString()}"
+      if settings.SSL_PORT
+        ndx.sslserver.listen ndx.ssl_port, ->
+          console.log chalk.yellow "ndx ssl server v#{chalk.cyan.bold(ndx.version)} listening on #{chalk.cyan.bold(ndx.ssl_port)}"
 
 if global.gc
   setInterval ->
