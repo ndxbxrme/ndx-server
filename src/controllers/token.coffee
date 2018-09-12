@@ -55,7 +55,7 @@ module.exports = (ndx) ->
     if req.headers.ndxhost
       ndx.host = req.headers.ndxhost
     else
-      ndx.host = "#{req.protocol}://#{req.headers.host}"
+      ndx.host = ndx.host or process.env.HOST or ndx.settings.HOST or "#{req.protocol}://#{req.hostname}"
     res.set 'Server-Id', ndx.id
     next()
   ndx.app.use '/api/*', (req, res, next) ->

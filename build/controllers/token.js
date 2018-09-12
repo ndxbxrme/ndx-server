@@ -82,7 +82,7 @@
       if (req.headers.ndxhost) {
         ndx.host = req.headers.ndxhost;
       } else {
-        ndx.host = req.protocol + "://" + req.headers.host;
+        ndx.host = ndx.host || process.env.HOST || ndx.settings.HOST || (req.protocol + "://" + req.hostname);
       }
       res.set('Server-Id', ndx.id);
       return next();
