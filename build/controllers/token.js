@@ -88,7 +88,8 @@
       return next();
     });
     return ndx.app.use('/api/*', function(req, res, next) {
-      var credentials, i, isCookie, len, parts, route, scheme, token, user, userId, where;
+      var credentials, i, impersonating, isCookie, len, parts, route, scheme, token, user, userId, where;
+      console.log('api request');
       ndx.user = null;
       if (req.method === 'OPTIONS') {
         return next();
@@ -96,9 +97,15 @@
       if (!ndx.database.maintenance()) {
         isCookie = false;
         token = '';
-        if (req.cookies && req.cookies.token) {
-          token = req.cookies.token;
-          isCookie = true;
+        impersonating = null;
+        if (req.cookies) {
+          if (req.cookies.token) {
+            token = req.cookies.token;
+            isCookie = true;
+          }
+          if (req.cookies.impersonate) {
+            impersonating = (crypto.Rabbit.decrypt(req.cookies.impersonate, ndx.settings.SESSION_SECRET).toString(crypto.enc.Utf8) || '').split('||')[0];
+          }
         } else if (req.headers && req.headers.authorization) {
           parts = req.headers.authorization.split(' ');
           if (parts.length === 2) {
@@ -124,6 +131,9 @@
                 ndx.user = users[0];
               }
               ndx.user.ip = req.ip;
+              if (impersonating) {
+                ndx.user.impersonatedBy = impersonating;
+              }
               req.user = ndx.user;
               if (isCookie) {
                 ndx.setAuthCookie(req, res);
@@ -146,6 +156,11 @@
               _id: req.headers['anon-id']
             };
             ndx.user = user;
+            ndx.user.ip = req.ip;
+            if (impersonating) {
+              ndx.user.impersonatedBy = impersonating;
+            }
+            req.user = ndx.user;
             return next();
           }
           for (i = 0, len = publicRoutes.length; i < len; i++) {

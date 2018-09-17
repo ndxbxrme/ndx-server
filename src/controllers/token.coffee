@@ -59,15 +59,20 @@ module.exports = (ndx) ->
     res.set 'Server-Id', ndx.id
     next()
   ndx.app.use '/api/*', (req, res, next) ->
+    console.log 'api request'
     ndx.user = null
     if req.method is 'OPTIONS'
       return next()
     if not ndx.database.maintenance()
       isCookie = false
       token = ''
-      if req.cookies and req.cookies.token
-        token = req.cookies.token
-        isCookie = true
+      impersonating = null
+      if req.cookies
+        if req.cookies.token
+          token = req.cookies.token
+          isCookie = true
+        if req.cookies.impersonate
+          impersonating = (crypto.Rabbit.decrypt(req.cookies.impersonate, ndx.settings.SESSION_SECRET).toString(crypto.enc.Utf8) or '').split('||')[0]
       else if req.headers and req.headers.authorization
         parts = req.headers.authorization.split ' '
         if parts.length is 2
@@ -88,6 +93,7 @@ module.exports = (ndx) ->
             else
               ndx.user = users[0]
             ndx.user.ip = req.ip
+            ndx.user.impersonatedBy = impersonating if impersonating
             req.user = ndx.user
             if isCookie
               ndx.setAuthCookie req, res
@@ -105,6 +111,9 @@ module.exports = (ndx) ->
             type: 'anon'
             _id: req.headers['anon-id']
           ndx.user = user
+          ndx.user.ip = req.ip
+          ndx.user.impersonatedBy = impersonating if impersonating
+          req.user = ndx.user
           return next()
         for route in publicRoutes
           if new RegExp(route).test req.originalUrl
