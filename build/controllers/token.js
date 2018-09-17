@@ -89,7 +89,6 @@
     });
     return ndx.app.use('/api/*', function(req, res, next) {
       var credentials, i, impersonating, isCookie, len, parts, route, scheme, token, user, userId, where;
-      console.log('api request');
       ndx.user = null;
       if (req.method === 'OPTIONS') {
         return next();

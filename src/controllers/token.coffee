@@ -59,7 +59,6 @@ module.exports = (ndx) ->
     res.set 'Server-Id', ndx.id
     next()
   ndx.app.use '/api/*', (req, res, next) ->
-    console.log 'api request'
     ndx.user = null
     if req.method is 'OPTIONS'
       return next()
