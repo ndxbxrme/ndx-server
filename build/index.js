@@ -129,7 +129,7 @@
         ndx.app.use(maintenance({
           database: ndx.database
         })).use(session({
-          name: 'NDXSESSION',
+          name: 'session',
           secret: ndx.settings.SESSION_SECRET,
           saveUninitialized: true,
           resave: true,
