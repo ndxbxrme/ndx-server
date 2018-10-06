@@ -1,6 +1,6 @@
 {
   "name": "ndx-server",
-  "version": "0.16.9",
+  "version": "0.16.10",
   "description": "my server framework",
   "main": "build/index.js",
   "scripts": {
@@ -39,7 +39,6 @@
     "crypto-js": "^3.1.9-1",
     "express": "^4.14.0",
     "express-session": "^1.15.1",
-    "farmhash": "^2.1.0",
     "helmet": "^3.3.0",
     "morgan": "^1.7.0",
     "ndxdb": "^1.10.11",
