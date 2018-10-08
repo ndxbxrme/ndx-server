@@ -66,12 +66,9 @@ module.exports = (ndx) ->
       isCookie = false
       token = ''
       impersonating = null
-      if req.cookies
-        if req.cookies.token
-          token = req.cookies.token
-          isCookie = true
-        if req.cookies.impersonate
-          impersonating = (crypto.Rabbit.decrypt(req.cookies.impersonate, ndx.settings.SESSION_SECRET).toString(crypto.enc.Utf8) or '').split('||')[0]
+      if req.cookies and req.cookies.token
+        token = req.cookies.token
+        isCookie = true
       else if req.headers and req.headers.authorization
         parts = req.headers.authorization.split ' '
         if parts.length is 2
@@ -79,6 +76,8 @@ module.exports = (ndx) ->
           credentials = parts[1]
           if /^Bearer$/i.test scheme
             token = credentials
+      if req.cookies.impersonate
+        impersonating = (crypto.Rabbit.decrypt(req.cookies.impersonate, ndx.settings.SESSION_SECRET).toString(crypto.enc.Utf8) or '').split('||')[0]
       userId = ndx.parseToken token
       if userId
         where = {}

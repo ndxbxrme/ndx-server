@@ -97,14 +97,9 @@
         isCookie = false;
         token = '';
         impersonating = null;
-        if (req.cookies) {
-          if (req.cookies.token) {
-            token = req.cookies.token;
-            isCookie = true;
-          }
-          if (req.cookies.impersonate) {
-            impersonating = (crypto.Rabbit.decrypt(req.cookies.impersonate, ndx.settings.SESSION_SECRET).toString(crypto.enc.Utf8) || '').split('||')[0];
-          }
+        if (req.cookies && req.cookies.token) {
+          token = req.cookies.token;
+          isCookie = true;
         } else if (req.headers && req.headers.authorization) {
           parts = req.headers.authorization.split(' ');
           if (parts.length === 2) {
@@ -114,6 +109,9 @@
               token = credentials;
             }
           }
+        }
+        if (req.cookies.impersonate) {
+          impersonating = (crypto.Rabbit.decrypt(req.cookies.impersonate, ndx.settings.SESSION_SECRET).toString(crypto.enc.Utf8) || '').split('||')[0];
         }
         userId = ndx.parseToken(token);
         if (userId) {
