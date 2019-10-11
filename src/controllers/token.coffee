@@ -100,7 +100,7 @@ module.exports = (ndx) ->
         , true
       else
         if ndx.settings.ANONYMOUS_USER and req.headers['anon-id']
-          user = await ndx.database.select ndx.settings.USER_TABLE, _id:req.headers['anon-id']
+          user = await ndx.database.selectOne ndx.settings.USER_TABLE, _id:req.headers['anon-id']
           if not user
             user =
               email: 'anon@user.com'

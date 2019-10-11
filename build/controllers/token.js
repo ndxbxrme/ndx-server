@@ -141,7 +141,7 @@
           }, true);
         } else {
           if (ndx.settings.ANONYMOUS_USER && req.headers['anon-id']) {
-            user = (await ndx.database.select(ndx.settings.USER_TABLE, {
+            user = (await ndx.database.selectOne(ndx.settings.USER_TABLE, {
               _id: req.headers['anon-id']
             }));
             if (!user) {
