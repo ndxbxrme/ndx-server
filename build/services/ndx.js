@@ -15,6 +15,7 @@
     },
     extend: function(dest, source) {
       var i, results;
+      //Object.assign dest, source
       if (!dest) {
         dest = {};
       }
@@ -39,7 +40,7 @@
       return template.replace(/\{\{(.+?)\}\}/g, function(all, match) {
         var evalInContext;
         evalInContext = function(str, context) {
-          return (new Function("with(this) {return " + str + "}")).call(context);
+          return (new Function(`with(this) {return ${str}}`)).call(context);
         };
         return evalInContext(match, data);
       });

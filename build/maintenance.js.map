@@ -6,5 +6,8 @@
     "maintenance.coffee"
   ],
   "names": [],
-  "mappings": "AAAA;EAAA;EAEA,MAAM,CAAC,OAAP,GAAiB,SAAC,OAAD;AACf,QAAA;IAAA,QAAA,GAAW,OAAO,CAAC;WACnB,SAAC,GAAD,EAAM,GAAN,EAAW,IAAX;MACE,IAAG,QAAQ,CAAC,WAAT,CAAA,CAAH;QACE,IAAG,GAAG,CAAC,WAAJ,KAAmB,kBAAnB,IAAyC,GAAG,CAAC,WAAJ,KAAmB,sBAA5D,IAAsF,GAAG,CAAC,WAAJ,KAAmB,YAA5G;iBACE,IAAA,CAAA,EADF;SAAA,MAAA;iBAGE,GAAG,CAAC,GAAJ,CAAQ,mDAAR,EAHF;SADF;OAAA,MAAA;eAME,IAAA,CAAA,EANF;;IADF;EAFe;AAFjB"
+  "mappings": "AAAA;EAAA;EAEA,MAAM,CAAC,OAAP,GAAiB,QAAA,CAAC,OAAD,CAAA;AACf,QAAA;IAAA,QAAA,GAAW,OAAO,CAAC;WACnB,QAAA,CAAC,GAAD,EAAM,GAAN,EAAW,IAAX,CAAA;MACE,IAAG,QAAQ,CAAC,WAAT,CAAA,CAAH;QACE,IAAG,GAAG,CAAC,WAAJ,KAAmB,kBAAnB,IAAyC,GAAG,CAAC,WAAJ,KAAmB,sBAA5D,IAAsF,GAAG,CAAC,WAAJ,KAAmB,YAA5G;iBACE,IAAA,CAAA,EADF;SAAA,MAAA;iBAGE,GAAG,CAAC,GAAJ,CAAQ,mDAAR,EAHF;SADF;OAAA,MAAA;eAME,IAAA,CAAA,EANF;;IADF;EAFe;AAFjB",
+  "sourcesContent": [
+    "'use strict'\r\n\r\nmodule.exports = (options) ->\r\n  database = options.database\r\n  (req, res, next) ->\r\n    if database.maintenance()\r\n      if req.originalUrl is '/maintenance-off' or req.originalUrl is '/api/upload/database' or req.originalUrl is '/api/getdb'\r\n        next()\r\n      else\r\n        res.end 'Database maintenance time, please come back later'\r\n    else\r\n      next()"
+  ]
 }

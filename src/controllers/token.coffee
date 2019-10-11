@@ -100,14 +100,16 @@ module.exports = (ndx) ->
         , true
       else
         if ndx.settings.ANONYMOUS_USER and req.headers['anon-id']
-          user =
-            email: 'anon@user.com'
-            local:
+          user = await ndx.database.select ndx.settings.USER_TABLE, _id:req.headers['anon-id']
+          if not user
+            user =
               email: 'anon@user.com'
-            roles:
-              anon: true
-            type: 'anon'
-            _id: req.headers['anon-id']
+              local:
+                email: 'anon@user.com'
+              roles:
+                anon: true
+              type: 'anon'
+              _id: req.headers['anon-id']
           ndx.user = user
           ndx.user.ip = req.ip
           ndx.user.impersonatedBy = impersonating if impersonating

@@ -42,7 +42,7 @@
       return text;
     };
     ndx.parseToken = function(token, skipIp) {
-      var bits, d, decrypted, e, error;
+      var bits, d, decrypted, e;
       if (!token) {
         return null;
       }
@@ -82,12 +82,12 @@
       if (req.headers.ndxhost) {
         ndx.host = req.headers.ndxhost;
       } else {
-        ndx.host = ndx.host || process.env.HOST || ndx.settings.HOST || (req.protocol + "://" + req.hostname);
+        ndx.host = ndx.host || process.env.HOST || ndx.settings.HOST || `${req.protocol}://${req.hostname}`;
       }
       res.set('Server-Id', ndx.id);
       return next();
     });
-    return ndx.app.use('/api/*', function(req, res, next) {
+    return ndx.app.use('/api/*', async function(req, res, next) {
       var credentials, i, impersonating, isCookie, len, parts, route, scheme, token, user, userId, where;
       ndx.user = null;
       if (req.method === 'OPTIONS') {
@@ -141,17 +141,22 @@
           }, true);
         } else {
           if (ndx.settings.ANONYMOUS_USER && req.headers['anon-id']) {
-            user = {
-              email: 'anon@user.com',
-              local: {
-                email: 'anon@user.com'
-              },
-              roles: {
-                anon: true
-              },
-              type: 'anon',
+            user = (await ndx.database.select(ndx.settings.USER_TABLE, {
               _id: req.headers['anon-id']
-            };
+            }));
+            if (!user) {
+              user = {
+                email: 'anon@user.com',
+                local: {
+                  email: 'anon@user.com'
+                },
+                roles: {
+                  anon: true
+                },
+                type: 'anon',
+                _id: req.headers['anon-id']
+              };
+            }
             ndx.user = user;
             ndx.user.ip = req.ip;
             if (impersonating) {

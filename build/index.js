@@ -71,14 +71,14 @@
       return this;
     },
     start: function() {
-      var MemoryStore, accessLogStream, bodyParser, compression, cookieParser, ctrl, e, error, express, folder, helmet, http, https, i, j, k, l, len, len1, len2, len3, len4, len5, len6, m, maintenance, module, moduleName, modulePackage, modulesToLoad, morgan, n, ndx, o, p, r, ref, session, useCtrl, w;
+      var MemoryStore, accessLogStream, bodyParser, compression, cookieParser, ctrl, e, express, folder, helmet, http, https, i, j, k, l, len, len1, len2, len3, len4, len5, len6, m, maintenance, module, moduleName, modulePackage, modulesToLoad, morgan, n, ndx, o, p, r, ref, session, useCtrl, w;
       if (cluster.isMaster) {
         i = 0;
         while (i++ < 1) {
           cluster.fork();
         }
         return cluster.on('exit', function(worker) {
-          console.log("Worker " + worker.id + " died..");
+          console.log(`Worker ${worker.id} died..`);
           if (settings.AUTO_RESTART && settings.AUTO_RESTART.toString().toLowerCase() !== 'false') {
             return cluster.fork();
           } else {
@@ -106,7 +106,7 @@
         morgan = require('morgan');
         maintenance = require('./maintenance.js');
         ndx.app = express();
-        ndx["static"] = express["static"];
+        ndx.static = express.static;
         ndx.port = settings.PORT;
         ndx.ssl_port = settings.SSL_PORT;
         ndx.host = settings.HOST;
@@ -182,7 +182,7 @@
           r.reverse();
           for (j = 0, len = r.length; j < len; j++) {
             module = r[j];
-            require((process.cwd()) + "/" + module)(ndx);
+            require(`${process.cwd()}/${module}`)(ndx);
           }
           r = glob.sync('node_modules/*');
           for (k = 0, len1 = r.length; k < len1; k++) {
@@ -190,7 +190,7 @@
             moduleName = module.replace('node_modules/', '');
             modulePackage = {};
             try {
-              modulePackage = require((process.cwd()) + "/node_modules/" + moduleName + "/package.json");
+              modulePackage = require(`${process.cwd()}/node_modules/${moduleName}/package.json`);
             } catch (error) {
               e = error;
             }
@@ -218,17 +218,19 @@
           };
           for (l = 0, len2 = modulesToLoad.length; l < len2; l++) {
             module = modulesToLoad[l];
-            require("../../" + module.name)(ndx);
-            console.log((w(module.name)) + "\t" + module.version);
+            //console.log "loading #{module.name}"
+            require(`../../${module.name}`)(ndx);
+            console.log(`${w(module.name)}\t${module.version}`);
           }
           ref = ['services', 'controllers'];
           for (m = 0, len3 = ref.length; m < len3; m++) {
             folder = ref[m];
-            r = glob.sync("server/" + folder + "/**/*.js");
+            r = glob.sync(`server/${folder}/**/*.js`);
             r.reverse();
             for (n = 0, len4 = r.length; n < len4; n++) {
               module = r[n];
-              require((process.cwd()) + "/" + module)(ndx);
+              //console.log "loading #{module}"
+              require(`${process.cwd()}/${module}`)(ndx);
             }
           }
         }
@@ -260,20 +262,19 @@
             }
           });
         });
-
         /*  
         process.on 'uncaughtException', (err) ->
           console.log 'uncaughtException'
           console.log err
           process.exit 1
-         */
+        */
         ndx.server.listen(ndx.port, function() {
-          console.log(chalk.yellow(ndx.logo + "ndx server v" + (chalk.cyan.bold(ndx.version)) + " listening on " + (chalk.cyan.bold(ndx.port))));
-          return console.log(chalk.yellow("started: " + (new Date().toLocaleString())));
+          console.log(chalk.yellow(`${ndx.logo}ndx server v${chalk.cyan.bold(ndx.version)} listening on ${chalk.cyan.bold(ndx.port)}`));
+          return console.log(chalk.yellow(`started: ${new Date().toLocaleString()}`));
         });
         if (settings.SSL_PORT) {
           return ndx.sslserver.listen(ndx.ssl_port, function() {
-            return console.log(chalk.yellow("ndx ssl server v" + (chalk.cyan.bold(ndx.version)) + " listening on " + (chalk.cyan.bold(ndx.ssl_port))));
+            return console.log(chalk.yellow(`ndx ssl server v${chalk.cyan.bold(ndx.version)} listening on ${chalk.cyan.bold(ndx.ssl_port)}`));
           });
         }
       }
