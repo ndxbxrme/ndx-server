@@ -73,7 +73,7 @@
       if (ndx.user) {
         cookieText = ndx.generateToken(ndx.user[ndx.settings.AUTO_ID], req.ip);
         res.encToken = cookieText;
-        res.cookie('token', cookieText, {
+        res.cookie(ndx.cookieName, cookieText, {
           maxAge: 7 * 24 * 60 * 60 * 1000
         });
       }
@@ -97,8 +97,9 @@
         isCookie = false;
         token = '';
         impersonating = null;
-        if (req.cookies && req.cookies.token) {
-          token = req.cookies.token;
+        console.log('got this far');
+        if (req.cookies && req.cookies[ndx.cookieName]) {
+          token = req.cookies[ndx.cookieName];
           isCookie = true;
         } else if (req.headers && req.headers.authorization) {
           parts = req.headers.authorization.split(' ');
@@ -114,6 +115,7 @@
           impersonating = (crypto.Rabbit.decrypt(req.cookies.impersonate, ndx.settings.SESSION_SECRET).toString(crypto.enc.Utf8) || '').split('||')[0];
         }
         userId = ndx.parseToken(token);
+        console.log('got user', userId);
         if (userId) {
           where = {};
           where[ndx.settings.AUTO_ID] = userId;
@@ -171,7 +173,8 @@
               return next();
             }
           }
-          throw ndx.UNAUTHORIZED;
+          console.log('i\'m gonna throw', ndx.cookieName);
+          return res.status(ndx.UNAUTHORIZED.status).json(ndx.UNAUTHORIZED.message);
         }
       }
     });

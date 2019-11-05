@@ -49,7 +49,7 @@ module.exports = (ndx) ->
     if ndx.user
       cookieText = ndx.generateToken ndx.user[ndx.settings.AUTO_ID], req.ip
       res.encToken = cookieText
-      res.cookie 'token', cookieText, maxAge: 7 * 24 * 60 * 60 * 1000  
+      res.cookie ndx.cookieName, cookieText, maxAge: 7 * 24 * 60 * 60 * 1000  
     return
   ndx.app.use '/*', (req, res, next) ->
     if req.headers.ndxhost
@@ -66,8 +66,9 @@ module.exports = (ndx) ->
       isCookie = false
       token = ''
       impersonating = null
-      if req.cookies and req.cookies.token
-        token = req.cookies.token
+      console.log 'got this far'
+      if req.cookies and req.cookies[ndx.cookieName]
+        token = req.cookies[ndx.cookieName]
         isCookie = true
       else if req.headers and req.headers.authorization
         parts = req.headers.authorization.split ' '
@@ -79,6 +80,7 @@ module.exports = (ndx) ->
       if req.cookies.impersonate
         impersonating = (crypto.Rabbit.decrypt(req.cookies.impersonate, ndx.settings.SESSION_SECRET).toString(crypto.enc.Utf8) or '').split('||')[0]
       userId = ndx.parseToken token
+      console.log 'got user', userId
       if userId
         where = {}
         where[ndx.settings.AUTO_ID] = userId
@@ -118,4 +120,5 @@ module.exports = (ndx) ->
         for route in publicRoutes
           if new RegExp(route).test req.originalUrl
             return next()
-        throw ndx.UNAUTHORIZED
+        console.log 'i\'m gonna throw', ndx.cookieName
+        res.status(ndx.UNAUTHORIZED.status).json ndx.UNAUTHORIZED.message

@@ -2,6 +2,7 @@
 
 ndx = require '../index.js'
 .config
+  appName: 'testApp'
   database: 'rb'
   tables: ['users', 'tasks']
   port: 23000
@@ -14,6 +15,7 @@ ndx = require '../index.js'
     name: 'bobby'
     age: 23
   console.log data
-  ndx.makeSlug 'users', '{{name.toUpperCase()}} {{age}}', data, ->
-    console.log data
+  console.log ndx.generateID()
+  ndx.app.use '/api/something', (req, res, next) ->
+    res.end '<html><body><h1>test</h1></body></html>'
 .start()

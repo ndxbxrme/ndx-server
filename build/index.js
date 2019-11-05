@@ -92,6 +92,7 @@
         }
         ndx = require('./services/ndx');
         ndx.database = settings.DB_ENGINE.config(settings).setNdx(ndx).start();
+        ndx.cookieName = (settings.APP_NAME || '') + 'token';
         express = require('express');
         compression = require('compression');
         bodyParser = require('body-parser');
@@ -229,8 +230,12 @@
             r.reverse();
             for (n = 0, len4 = r.length; n < len4; n++) {
               module = r[n];
-              //console.log "loading #{module}"
-              require(`${process.cwd()}/${module}`)(ndx);
+              try {
+                //console.log "loading #{module}"
+                require(`${process.cwd()}/${module}`)(ndx);
+              } catch (error) {
+                e = error;
+              }
             }
           }
         }

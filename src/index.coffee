@@ -65,6 +65,7 @@ module.exports =
       .config settings
       .setNdx ndx
       .start()
+      ndx.cookieName = (settings.APP_NAME or '') + 'token'
       express = require 'express'
       compression = require 'compression'
       bodyParser = require 'body-parser'
@@ -167,7 +168,9 @@ module.exports =
           r.reverse()
           for module in r
             #console.log "loading #{module}"
-            require("#{process.cwd()}/#{module}") ndx
+            try
+              require("#{process.cwd()}/#{module}") ndx
+            catch e
       for useCtrl in uselist
         useCtrl ndx
       for ctrl in controllers

@@ -3,6 +3,7 @@
   var ndx;
 
   ndx = require('../index.js').config({
+    appName: 'testApp',
     database: 'rb',
     tables: ['users', 'tasks'],
     port: 23000,
@@ -18,8 +19,9 @@
       age: 23
     };
     console.log(data);
-    return ndx.makeSlug('users', '{{name.toUpperCase()}} {{age}}', data, function() {
-      return console.log(data);
+    console.log(ndx.generateID());
+    return ndx.app.use('/api/something', function(req, res, next) {
+      return res.end('<html><body><h1>test</h1></body></html>');
     });
   }).start();
 

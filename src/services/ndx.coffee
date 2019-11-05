@@ -29,4 +29,5 @@ module.exports =
   transforms: {}
   logo: "       _                                \n ___ _| |_ _    ___ ___ ___ _ _ ___ ___ \n|   | . |_'_|  |_ -| -_|  _| | | -_|  _|\n|_|_|___|_,_|  |___|___|_|  \\_/|___|_|  \n                                        \n"
   version: version
+  cookieName: 'token'
   vars: {}
