@@ -66,7 +66,6 @@ module.exports = (ndx) ->
       isCookie = false
       token = ''
       impersonating = null
-      console.log 'got this far'
       if req.cookies and req.cookies[ndx.cookieName]
         token = req.cookies[ndx.cookieName]
         isCookie = true
@@ -80,7 +79,6 @@ module.exports = (ndx) ->
       if req.cookies.impersonate
         impersonating = (crypto.Rabbit.decrypt(req.cookies.impersonate, ndx.settings.SESSION_SECRET).toString(crypto.enc.Utf8) or '').split('||')[0]
       userId = ndx.parseToken token
-      console.log 'got user', userId
       if userId
         where = {}
         where[ndx.settings.AUTO_ID] = userId
@@ -120,5 +118,4 @@ module.exports = (ndx) ->
         for route in publicRoutes
           if new RegExp(route).test req.originalUrl
             return next()
-        console.log 'i\'m gonna throw', ndx.cookieName
         res.status(ndx.UNAUTHORIZED.status).json ndx.UNAUTHORIZED.message
